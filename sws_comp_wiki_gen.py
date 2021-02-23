@@ -1,5 +1,6 @@
 import battlefy_data
 from datetime import datetime
+from operator import itemgetter
 
 
 def create_sidebar(data):
@@ -52,10 +53,17 @@ def create_team_list(data):
     teams_ordered = ''
     teams = list()
     for team_id in data['teams']:
-        teams.append(data['teams'][team_id]['name'])
-    teams.sort()
-    for team_name in teams:
-        teams_ordered += '* [[' + team_name.replace('|', '-') + ']]\n'
+        teams.append((team_id, data['teams'][team_id]['name']))
+    teams= sorted(teams, key=itemgetter(1))
+
+    for team in teams:
+        teams_table = '{| class="wikitable mw-collapsible mw-collapsed"\n'
+        teams_table += '|+ {{nowrap | ' + team[1].replace('|', '-') + ' - '
+        teams_table += data['teams'][team[0]]['countryFlag'] + ' }}\n'
+        for player in data['teams'][team[0]]['players']:
+            teams_table += '|-\n| ' + player['inGameName'] + '\n'
+        teams_table += '|}\n'
+        teams_ordered += teams_table
 
     return teams_ordered
 
