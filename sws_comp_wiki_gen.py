@@ -149,6 +149,51 @@ def create_swiss_matches(matches, teams):
     return swiss_match_table
 
 
+def create_elim_bracket(stage, teams):
+    bracket = '{{#invoke: Team bracket | main\n'
+    bracket += '|rounds=' + str(stage['bracket']['roundsCount'])
+    # todo figure out how to auto set round byes
+    bracket += '|byes=0'
+    bracket += '|boldwinner=high|hideomittedscores=1\n'
+
+    # set up team number trackers
+    round_team_number = [1] * stage['bracket']['roundsCount']
+
+    for match in stage['matches']:
+        bracket += '|RD' + str(match['roundNumber'])
+        bracket += '-seed' + str(round_team_number[match['roundNumber']-1])
+        try:
+            bracket += '=' + str(match['top']['seedNumber'])
+        except KeyError:
+            pass
+
+        bracket += '|RD' + str(match['roundNumber'])
+        bracket += '-team' + str(round_team_number[match['roundNumber']-1]) + '=' + teams[match['top']['teamID']]['name']
+        bracket += '|RD' + str(match['roundNumber'])
+        bracket += '-score' + str(round_team_number[match['roundNumber']-1]) + '=' + str(match['top']['score'])
+        bracket += '\n'
+
+        round_team_number[match['roundNumber']-1] += 1
+
+        bracket += '|RD' + str(match['roundNumber'])
+        bracket += '-seed' + str(round_team_number[match['roundNumber']-1])
+        try:
+            bracket += '=' + str(match['bottom']['seedNumber'])
+        except KeyError:
+            pass
+        bracket += '|RD' + str(match['roundNumber'])
+        bracket += '-team' + str(round_team_number[match['roundNumber']-1]) + '=' + teams[match['bottom']['teamID']]['name']
+        bracket += '|RD' + str(match['roundNumber'])
+        bracket += '-score' + str(round_team_number[match['roundNumber']-1]) + '=' + str(match['bottom']['score'])
+        bracket += '\n'
+
+        round_team_number[match['roundNumber'] - 1] += 1
+
+    bracket += '}}\n'
+
+    return bracket
+
+
 def main():
     tournament_id = '5ff3354193edb53839d44d55'
     event_data = battlefy_data. BattlefyData(tournament_id)
@@ -172,6 +217,10 @@ def main():
         swiss_matches = create_swiss_matches(event_data.tournament_data['stages'][0]['matches'],
                                              event_data.tournament_data['teams'])
         f.write(swiss_matches)
+
+        f.write('== Single Elimination Tournament ==\n')
+        bracket = create_elim_bracket(event_data.tournament_data['stages'][1], event_data.tournament_data['teams'])
+        f.write(bracket)
 
         f.write('== Participants ==\n')
         teams = create_team_list(event_data.tournament_data)
