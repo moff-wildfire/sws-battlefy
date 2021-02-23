@@ -14,10 +14,7 @@ def create_sidebar(data):
     sidebar += ' | end_date=' + datetime.strptime(data['lastCompletedMatchAt'],
                                                   '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y/%m/%d')
 
-    team_num = 0
-    for team_id in data['teams']:
-        if 'checkedInAt' in data['teams'][team_id]:
-            team_num += 1
+    team_num = len(data['teams'])
 
     sidebar += ' | number_of_teams=' + str(team_num)
     sidebar += '}}\n'
@@ -28,11 +25,10 @@ def create_team_list(data):
     teams_ordered = ''
     teams = list()
     for team_id in data['teams']:
-        if 'checkedInAt' in data['teams'][team_id]:
-            teams.append(data['teams'][team_id]['name'])
+        teams.append(data['teams'][team_id]['name'])
     teams.sort()
     for team_name in teams:
-        teams_ordered += '* [[' + team_name + ']]\n'
+        teams_ordered += '* [[' + team_name.replace('|', '-') + ']]\n'
 
     return teams_ordered
 

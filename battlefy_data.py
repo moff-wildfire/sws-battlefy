@@ -25,8 +25,10 @@ class BattlefyData(object):
                                     + '&extend%5Bstages%5D%5Bmatches%5D=true') as url:
             self.tournament_data = json.loads(url.read().decode())[0]
 
-        self.dl_teams_data()
         self.dl_stage_standings_data()
+
+        # Team data must come after standings
+        self.dl_teams_data()
 
         with open(self.tournament_id + '_tournament.json', 'w') as f:
             json.dump(self.tournament_data, f, indent=4)
@@ -42,6 +44,16 @@ class BattlefyData(object):
             self.tournament_data['teams'][id] = dict()
             del eachElement['_id']
             self.tournament_data['teams'][id] = eachElement
+
+        # Purge teams not on the standings. This can happen if they failed to check-in
+        participating_teams = set()
+        for stage in self.tournament_data['stages']:
+            for standing in stage['standings']:
+                participating_teams.add(standing['teamID'])
+
+        purge_teams = (self.tournament_data['teams'].keys() | set()).difference(participating_teams)
+        for team_id in purge_teams:
+            del self.tournament_data['teams'][team_id]
 
     def dl_stage_standings_data(self):
         for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
