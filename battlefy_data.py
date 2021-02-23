@@ -4,78 +4,65 @@ import json
 tournament_api = 'https://dtmwra1jsgyb0.cloudfront.net/'
 
 
+class BattlefyData(object):
+    def __init__(self, id):
+        self.tournament_data = dict()
+        self.tournament_id = id
+
+    def load_tournament_data(self):
+        try:
+            with open(self.tournament_id + '_tournament.json', 'r') as f:
+                self.tournament_data = json.load(f)
+        except Exception:
+            self.dl_tournament_data()
+
+    def dl_tournament_data(self):
+        self.tournament_data = dict()
+        with urllib.request.urlopen(tournament_api + 'tournaments/' + self.tournament_id
+                                    + '?extend%5Bgame%5D=true'
+                                    + '&extend%5Borganization%5D%5Bowner%5D=true'
+                                    + '&extend%5Bstages%5D%5Bgroups%5D%5Bmatches%5D=true'
+                                    + '&extend%5Bstages%5D%5Bmatches%5D=true') as url:
+            self.tournament_data = json.loads(url.read().decode())[0]
+
+        self.dl_teams_data()
+
+        with open(self.tournament_id + '_tournament.json', 'w') as f:
+            json.dump(self.tournament_data, f, indent=4)
+
+    def dl_teams_data(self):
+        self.tournament_data['teams'] = dict()
+        with urllib.request.urlopen(tournament_api + 'tournaments/' + self.tournament_id + '/teams') as url:
+            data = json.loads(url.read().decode())
+
+        # modify the list to be a dictionary with ID as the key so the data is easier to access
+        for eachElement in data:
+            id = eachElement['_id']
+            self.tournament_data['teams'][id] = dict()
+            del eachElement['_id']
+            self.tournament_data['teams'][id] = eachElement
+
+    def dl_screen_shots(self):
+        for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
+            for match in self.tournament_data['stages'][stage_number]['matches']:
+                if 'screenshots' in match:
+                    for submitter in match['screenshots']:
+                        for game in match['screenshots'][submitter]:
+                            urllib.request.urlretrieve(match['screenshots'][submitter][game][0],
+                                                       'stage-' + str(stage_number+1) + '_round-'
+                                                       + str(match['roundNumber']) + '_match-'
+                                                       + str(match['matchNumber']) + '_' + game + '.png')
+
+
 def main():
 
-    tourny_id = '5ff3354193edb53839d44d55'
-    download_screenshots = False
+    tournament_id = '5ff3354193edb53839d44d55'
+    event_data = BattlefyData(tournament_id)
+    event_data.load_tournament_data()
+    for team_id in event_data.tournament_data['teams']:
+        print(event_data.tournament_data['teams'][team_id]['name'])
 
-    save_all_data(tourny_id, download_screenshots)
-
-
-def save_all_data(id, dl_screenshots):
-    tourny_data = get_tournament_data(id)
-    with open(id + '_tourny.json', 'w') as f:
-        json.dump(tourny_data, f, indent=4)
-
-    team_data = get_team_data(id)
-    with open(id + '_tourny_teams.json', 'w') as f:
-        json.dump(team_data, f, indent=4)
-
-    for stage_number, stage in enumerate(tourny_data['stageIDs']):
-        stage_data = get_stage_info(stage)
-        with open(id + '_' + str(stage_number) + '_stage_info.json', 'w') as f:
-            json.dump(stage_data, f, indent=4)
-
-        standings_data = get_stage_standings(stage)
-        with open(id + '_' + str(stage_number) + '_stage_standings.json', 'w') as f:
-            json.dump(standings_data, f, indent=4)
-
-        matches_data = get_tournament_stage_matches(stage)
-        with open(id + '_' + str(stage_number) + '_stage_matches.json', 'w') as f:
-            json.dump(matches_data, f, indent=4)
-
-        if dl_screenshots:
-            get_screen_shots(matches_data, stage_number+1)
-
-
-def get_tournament_data(id):
-    with urllib.request.urlopen(tournament_api + 'tournaments/' + id) as url:
-        data = json.loads(url.read().decode())
-    return data
-
-
-def get_team_data(id):
-    with urllib.request.urlopen(tournament_api + 'tournaments/' + id + '/teams') as url:
-        data = json.loads(url.read().decode())
-    return data
-
-
-def get_stage_info(stage):
-    with urllib.request.urlopen(tournament_api + 'stages/' + stage) as url:
-        data = json.loads(url.read().decode())
-    return data
-
-
-def get_tournament_stage_matches(stage):
-    with urllib.request.urlopen(tournament_api + 'stages/' + stage + '/matches') as url:
-        data = json.loads(url.read().decode())
-    return data
-
-
-def get_stage_standings(stage):
-    with urllib.request.urlopen(tournament_api + 'stages/' + stage + '/latest-round-standings') as url:
-        data = json.loads(url.read().decode())
-    return data
-
-
-def get_screen_shots(data, stage_number):
-    for item in data:
-        if 'screenshots' in item:
-            for submitter in item['screenshots']:
-                for game in item['screenshots'][submitter]:
-                    urllib.request.urlretrieve(item['screenshots'][submitter][game][0], 'stage-' + str(stage_number)
-                                               + '_round-' + str(item['roundNumber']) + '_match-'
-                                               + str(item['matchNumber']) + '_' + game + '.png')
+    # event_data.dl_screen_shots()
 
 
 if __name__ == '__main__':
