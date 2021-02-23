@@ -95,6 +95,60 @@ def create_swiss_table(standings):
     return swiss_table
 
 
+def create_swiss_matches(matches, teams):
+    swiss_match_table = ''
+    rounds = dict()
+
+    win_style = 'style="color:black; background-color:#DDF4DD;"'
+
+    round_header = '{| class="wikitable"\n'
+    round_header += '! colspan="4" | Round '
+
+    for match in matches:
+        match_line = '|-\n'
+
+        if match['isBye']:
+            match_line += '| ' + win_style + '| '
+            match_line += teams[match['top']['teamID']]['name'] + '\n'
+            match_line += '| \n| \n|Bye\n'
+        else:
+
+            if match['top']['winner']:
+                match_line += '| ' + win_style + '| '
+                score = "'''" + str(match['top']['score']) + "'''"
+            else:
+                match_line += '| '
+                score = str(match['top']['score'])
+
+            match_line += teams[match['top']['teamID']]['name'] + '\n'
+            match_line += '| ' + score + '\n'
+
+            team_name = ''
+            if match['bottom']['winner']:
+                team_name += '| ' + win_style + '| '
+                score = "'''" + str(match['bottom']['score']) + "'''"
+            else:
+                team_name += '| '
+                score = str(match['bottom']['score'])
+
+            team_name += teams[match['bottom']['teamID']]['name'] + '\n'
+            match_line += '| ' + score + '\n' + team_name
+
+        try:
+            rounds[str(match['roundNumber'])].append(match_line)
+        except KeyError:
+            rounds[str(match['roundNumber'])] = list()
+            rounds[str(match['roundNumber'])].append(match_line)
+
+    for i in range(1, len(rounds)+1):
+        swiss_match_table += round_header + str(i) + '\n'
+        for match in rounds[str(i)]:
+            swiss_match_table += match
+        swiss_match_table += '|}\n'
+
+    return swiss_match_table
+
+
 def main():
     tournament_id = '5ff3354193edb53839d44d55'
     event_data = battlefy_data. BattlefyData(tournament_id)
@@ -114,6 +168,10 @@ def main():
         f.write('=== Swiss Standings ===\n')
         swiss_table = create_swiss_table(event_data.tournament_data['stages'][0]['standings'])
         f.write(swiss_table)
+        f.write('=== Swiss Matches ===\n')
+        swiss_matches = create_swiss_matches(event_data.tournament_data['stages'][0]['matches'],
+                                             event_data.tournament_data['teams'])
+        f.write(swiss_matches)
 
         f.write('== Participants ==\n')
         teams = create_team_list(event_data.tournament_data)
