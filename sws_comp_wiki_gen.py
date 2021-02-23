@@ -44,8 +44,6 @@ def create_event_format(data):
                 event_format += '** ' + str(rounds) + '-round ' \
                                 + stage['bracket']['seriesStyle'] + str(numGames) + '\n'
 
-
-
     return event_format
 
 
@@ -54,7 +52,7 @@ def create_team_list(data):
     teams = list()
     for team_id in data['teams']:
         teams.append((team_id, data['teams'][team_id]['name']))
-    teams= sorted(teams, key=itemgetter(1))
+    teams = sorted(teams, key=itemgetter(1))
 
     for team in teams:
         teams_table = '{| class="wikitable mw-collapsible mw-collapsed"\n'
