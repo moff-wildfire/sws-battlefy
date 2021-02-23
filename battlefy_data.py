@@ -26,6 +26,7 @@ class BattlefyData(object):
             self.tournament_data = json.loads(url.read().decode())[0]
 
         self.dl_teams_data()
+        self.dl_stage_standings_data()
 
         with open(self.tournament_id + '_tournament.json', 'w') as f:
             json.dump(self.tournament_data, f, indent=4)
@@ -41,6 +42,12 @@ class BattlefyData(object):
             self.tournament_data['teams'][id] = dict()
             del eachElement['_id']
             self.tournament_data['teams'][id] = eachElement
+
+    def dl_stage_standings_data(self):
+        for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
+            self.tournament_data['stages'][stage_number]['standings'] = list()
+            with urllib.request.urlopen(tournament_api + 'stages/' + stage_id + '/latest-round-standings') as url:
+                self.tournament_data['stages'][stage_number]['standings'] = json.loads(url.read().decode())
 
     def dl_screen_shots(self):
         for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
