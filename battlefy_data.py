@@ -16,7 +16,11 @@ class BattlefyData(object):
         except Exception:
             self.dl_tournament_data()
 
-    def dl_tournament_data(self):
+    def save_tournament_data(self):
+        with open(self.tournament_id + '_tournament.json', 'w') as f:
+            json.dump(self.tournament_data, f, indent=4)
+
+    def dl_tournament_data(self, reduce_teams=True):
         self.tournament_data = dict()
         with urllib.request.urlopen(tournament_api + 'tournaments/' + self.tournament_id
                                     + '?extend%5Bgame%5D=true'
@@ -27,13 +31,12 @@ class BattlefyData(object):
 
         self.dl_stage_standings_data()
 
-        # Team data must come after standings
-        self.dl_teams_data()
+        # Team data must come after standings in order to reduce
+        self.dl_teams_data(reduce_teams)
 
-        with open(self.tournament_id + '_tournament.json', 'w') as f:
-            json.dump(self.tournament_data, f, indent=4)
+        self.save_tournament_data()
 
-    def dl_teams_data(self):
+    def dl_teams_data(self, reduce_teams=True):
         self.tournament_data['teams'] = dict()
         with urllib.request.urlopen(tournament_api + 'tournaments/' + self.tournament_id + '/teams') as url:
             data = json.loads(url.read().decode())
@@ -45,15 +48,16 @@ class BattlefyData(object):
             del eachElement['_id']
             self.tournament_data['teams'][id] = eachElement
 
-        # Purge teams not on the standings. This can happen if they failed to check-in
-        participating_teams = set()
-        for stage in self.tournament_data['stages']:
-            for standing in stage['standings']:
-                participating_teams.add(standing['teamID'])
+        if reduce_teams:
+            # Purge teams not on the standings. This can happen if they failed to check-in
+            participating_teams = set()
+            for stage in self.tournament_data['stages']:
+                for standing in stage['standings']:
+                    participating_teams.add(standing['teamID'])
 
-        purge_teams = (self.tournament_data['teams'].keys() | set()).difference(participating_teams)
-        for team_id in purge_teams:
-            del self.tournament_data['teams'][team_id]
+            purge_teams = (self.tournament_data['teams'].keys() | set()).difference(participating_teams)
+            for team_id in purge_teams:
+                del self.tournament_data['teams'][team_id]
 
     def dl_stage_standings_data(self):
         for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
