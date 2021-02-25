@@ -4,6 +4,7 @@ import json
 import os
 import unicodedata
 import re
+from pathlib import Path
 
 tournament_api = 'https://dtmwra1jsgyb0.cloudfront.net/'
 
@@ -29,17 +30,23 @@ class BattlefyData(object):
     def __init__(self, id):
         self.tournament_data = dict()
         self.tournament_id = id
+        self.event_directory = Path('./event_data/')
 
     def load_tournament_data(self):
         try:
-            with open(self.tournament_id + '_tournament.json', 'r') as f:
+            with open(Path.joinpath(self.event_directory, self.tournament_id + '_tournament.json'), 'r') as f:
                 self.tournament_data = json.load(f)
         except Exception:
             self.dl_tournament_data()
 
     def save_tournament_data(self):
-        with open(self.tournament_id + '_tournament.json', 'w') as f:
+        self.event_directory.mkdir(parents=True, exist_ok=True)
+        with open(Path.joinpath(self.event_directory, self.tournament_id + '_tournament.json'), 'w') as f:
             json.dump(self.tournament_data, f, indent=4)
+
+    def get_tournament_data_path(self):
+        data_path = Path.joinpath(self.event_directory, slugify(self.tournament_data['name']) + '_' + self.tournament_id)
+        return data_path
 
     def dl_tournament_data(self, reduce_teams=True):
         self.tournament_data = dict()
@@ -90,20 +97,40 @@ class BattlefyData(object):
         for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
             for match in self.tournament_data['stages'][stage_number]['matches']:
                 if 'screenshots' in match:
+                    team1 = slugify(self.tournament_data['teams'][match['top']['teamID']]['name'])
+                    team2 = slugify(self.tournament_data['teams'][match['bottom']['teamID']]['name'])
                     for submitter in match['screenshots']:
                         for game in match['screenshots'][submitter]:
-                            urllib.request.urlretrieve(match['screenshots'][submitter][game][0],
-                                                       'stage-' + str(stage_number+1) + '_round-'
-                                                       + str(match['roundNumber']) + '_match-'
-                                                       + str(match['matchNumber']) + '_' + game + '.png')
+                            url = match['screenshots'][submitter][game][0]
+                            # Add the battelfy filename to the end of the image filename to ensure it's a unique image
+                            # This will help determine if a 2nd image has been uploaded to replace an older one.
+                            filename = 'stage-' + str(stage_number+1) + '_round-'\
+                                       + str(match['roundNumber']) + '_match-'\
+                                       + str(match['matchNumber']) + '_' + game + '_'\
+                                       + team1 + '_vs_' + team2 + '_'\
+                                       + os.path.split(urllib.parse.unquote(urllib.parse.urlparse(url)[2]))[1]
+
+                            directory = Path.joinpath(self.get_tournament_data_path(),
+                                                      'stage-' + str(stage_number+1) + '/round-'
+                                                      + str(match['roundNumber']))
+                            directory.mkdir(parents=True, exist_ok=True)
+                            new_image = Path.joinpath(directory, filename)
+                            if not new_image.exists():
+                                urllib.request.urlretrieve(url, new_image)
 
     def dl_team_logos(self):
         for team in self.tournament_data['teams']:
             url = self.tournament_data['teams'][team]['persistentTeam']['logoUrl']
             if url:
+                directory = Path.joinpath(self.get_tournament_data_path(), 'team_logos')
+                directory.mkdir(parents=True, exist_ok=True)
+
                 extension = os.path.splitext(urllib.parse.urlparse(url)[2])[1]
                 team_name = slugify(self.tournament_data['teams'][team]['name'])
-                urllib.request.urlretrieve(url, team_name + extension)
+
+                new_image = Path.joinpath(directory, team_name + extension)
+                if not new_image.exists():
+                    urllib.request.urlretrieve(url, new_image)
 
 
 def main():

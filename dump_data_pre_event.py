@@ -1,5 +1,6 @@
 import battlefy_data
 from operator import itemgetter
+from pathlib import Path
 
 
 def create_team_list(data):
@@ -44,18 +45,36 @@ def create_team_list(data):
 
 
 def main():
-    tournament_id = '60019f8ebcc5ed46373408a1'
+
+    # Todo: main should take in arguments
+    #    event_id
+    #    is_pre_event - used to determine if teams should be reduced to those in the standings
+    #    dl_logos
+    #    dl_screens
+    #    force_battlefy_update - used to pull in a fresh set of data, will be set to true if is_pre_event
+    #    generate_team_csv
+    #    generate_wiki - really requires reduce_teams to be true, probably should force reduce_teams to run before gen
+
+    ccs_winter_minor_id = '5ff3354193edb53839d44d55'
+    ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
+    tournament_id = ccs_winter_major_id
     event_data = battlefy_data. BattlefyData(tournament_id)
     event_data.load_tournament_data()
 
     # Pull a fresh set of data and don't reduce teams to just those in a non-existent standings list
     event_data.dl_tournament_data(reduce_teams=False)
 
-    with open(event_data.tournament_data['name'] + '_teams-players.csv', 'w+', newline='\n') as f:
+    event_path = event_data.get_tournament_data_path()
+    event_path.mkdir(parents=True, exist_ok=True)
+    filename = Path.joinpath(event_path, event_data.tournament_data['name'] + '_teams-players.csv')
+
+    with open(filename, 'w+', newline='\n') as f:
         teams = create_team_list(event_data.tournament_data)
         f.write(teams)
 
     event_data.dl_team_logos()
+
+    event_data.dl_screen_shots()
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 import battlefy_data
 from datetime import datetime
 from operator import itemgetter
+from pathlib import Path
 
 
 def create_sidebar(data):
@@ -205,7 +206,11 @@ def main():
     event_data = battlefy_data. BattlefyData(tournament_id)
     event_data.load_tournament_data()
 
-    with open(event_data.tournament_data['name'] + '.wiki', 'w+', newline='\n') as f:
+    event_path = event_data.get_tournament_data_path()
+    event_path.mkdir(parents=True, exist_ok=True)
+    filename = Path.joinpath(event_path, event_data.tournament_data['name'] + '.wiki')
+
+    with open(filename, 'w+', newline='\n') as f:
         sidebar = create_sidebar(event_data.tournament_data)
         f.write(sidebar)
         f.write('== Format ==\n')

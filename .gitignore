@@ -3,7 +3,7 @@ apicache-py3
 *.passwd
 *.lwp
 *.ctrl
-*.wiki
+event_data/
 
 
 # Byte-compiled / optimized / DLL files
