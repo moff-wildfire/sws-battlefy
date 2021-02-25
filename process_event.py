@@ -64,15 +64,16 @@ def main():
     # Pull a fresh set of data and don't reduce teams to just those in a non-existent standings list
     event_data.dl_tournament_data(reduce_teams=False)
 
-    event_path = event_data.get_tournament_data_path()
-    event_path.mkdir(parents=True, exist_ok=True)
-    filename = Path.joinpath(event_path, event_data.tournament_data['name'] + '_teams-players.csv')
-
-    with open(filename, 'w+', newline='\n') as f:
-        teams = create_team_list(event_data.tournament_data)
-        f.write(teams)
-
-    event_data.dl_team_logos()
+    # Create Team/Player CSV
+    # event_path = event_data.get_tournament_data_path()
+    # event_path.mkdir(parents=True, exist_ok=True)
+    # filename = Path.joinpath(event_path, event_data.tournament_data['name'] + '_teams-players.csv')
+    #
+    # with open(filename, 'w+', newline='\n') as f:
+    #     teams = create_team_list(event_data.tournament_data)
+    #     f.write(teams)
+    #
+    # event_data.dl_team_logos()
 
     event_data.dl_screen_shots()
 
