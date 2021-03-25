@@ -19,6 +19,7 @@ def create_sidebar(data):
     team_num = len(data['teams'])
 
     sidebar += ' | number_of_teams=' + str(team_num)
+    sidebar += ' | organizer=' + data['organization']['name']
     sidebar += '}}\n'
     return sidebar
 
