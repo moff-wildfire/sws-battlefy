@@ -90,8 +90,14 @@ class BattlefyData(object):
     def dl_stage_standings_data(self):
         for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
             self.tournament_data['stages'][stage_number]['standings'] = list()
-            with urllib.request.urlopen(tournament_api + 'stages/' + stage_id + '/latest-round-standings') as url:
-                self.tournament_data['stages'][stage_number]['standings'] = json.loads(url.read().decode())
+            standings = list()
+            with urllib.request.urlopen(tournament_api + 'stages/' + stage_id + '/standings') as url:
+                standings = json.loads(url.read().decode())
+            if not standings:
+                with urllib.request.urlopen(tournament_api + 'stages/' + stage_id + '/latest-round-standings') as url:
+                    standings = json.loads(url.read().decode())
+
+            self.tournament_data['stages'][stage_number]['standings'] = standings
 
     def dl_screen_shots(self):
         for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
