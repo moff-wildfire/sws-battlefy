@@ -240,6 +240,45 @@ def create_round_robin_tables(stage, teams):
             group_table += '|}\n'
 
         tables += group_table
+
+        win_style = 'style="color:black; background-color:#DDF4DD;"'
+
+        match_table = '{| class="wikitable"\n'
+
+        for match in group['matches']:
+            match_line = '|-\n'
+
+            if match['isBye']:
+                match_line += '| ' + win_style + '| '
+                match_line += teams[match['top']['teamID']]['name'] + '\n'
+                match_line += '| \n| \n|Bye\n'
+            else:
+
+                if match['top']['winner']:
+                    match_line += '| ' + win_style + '| '
+                    score = "'''" + str(match['top']['score']) + "'''"
+                else:
+                    match_line += '| '
+                    score = str(match['top']['score'])
+
+                match_line += teams[match['top']['teamID']]['name'] + '\n'
+                match_line += '| ' + score + '\n'
+
+                team_name = ''
+                if match['bottom']['winner']:
+                    team_name += '| ' + win_style + '| '
+                    score = "'''" + str(match['bottom']['score']) + "'''"
+                else:
+                    team_name += '| '
+                    score = str(match['bottom']['score'])
+
+                team_name += teams[match['bottom']['teamID']]['name'] + '\n'
+                match_line += '| ' + score + '\n' + team_name
+
+            match_table += match_line
+        match_table += '|}\n'
+        tables += match_table
+
     return tables
 
 
