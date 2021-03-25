@@ -201,8 +201,50 @@ def create_elim_bracket(stage, teams):
     return bracket
 
 
+def create_round_robin_tables(stage, teams):
+
+    dropped_style = 'style="color:black; background-color:#ff6961;"'
+    dropped_row_label = '|-\n| colspan="6" |\n|-\n| colspan="6" ' + dropped_style + '|Indicates Dropped\n'
+
+    swiss_header = '{| class="wikitable"\n'
+    swiss_header += '! Rank\n'
+    swiss_header += '! Team\n'
+    swiss_header += '! W\n'
+    swiss_header += '! T\n'
+    swiss_header += '! L\n'
+    swiss_header += '! P\n'
+
+    tables = ''
+    for group in stage['groups']:
+        tables += "=== Group " + group['name'] + ' ===\n'
+        group_table = ''
+        has_drop = False
+        for rank, standing_id in enumerate(group['standingIDs']):
+            for standing in stage['standings']:
+                if standing_id == standing['_id']:
+                    if standing['disqualified']:
+                        group_table += '|- ' + dropped_style + '\n'
+                    else:
+                        group_table += '|-\n'
+                    group_table += '|' + str(rank + 1) + '\n'
+                    group_table += '|' + standing['team']['name'] + '\n'
+                    group_table += '|' + str(standing['wins']) + '\n'
+                    group_table += '|' + str(standing['ties']) + '\n'
+                    group_table += '|' + str(standing['losses']) + '\n'
+                    group_table += '|' + str(standing['points']) + '\n'
+
+        if group_table:
+            group_table = swiss_header + group_table
+            if has_drop:
+                group_table += dropped_row_label
+            group_table += '|}\n'
+
+        tables += group_table
+    return tables
+
+
 def main():
-    tournament_id = '5ff3354193edb53839d44d55'
+    tournament_id = '60019f8ebcc5ed46373408a1'
     event_data = battlefy_data. BattlefyData(tournament_id)
     event_data.load_tournament_data()
 
@@ -219,19 +261,23 @@ def main():
         f.write('== Prize Pool ==\n')
         f.write(event_data.tournament_data['prizes'] + '\n')
 
-        # Todo: figure out how to automate this better between swiss/group
-        f.write('== Swiss Stage ==\n')
-        f.write('=== Swiss Standings ===\n')
-        swiss_table = create_swiss_table(event_data.tournament_data['stages'][0]['standings'])
-        f.write(swiss_table)
-        f.write('=== Swiss Matches ===\n')
-        swiss_matches = create_swiss_matches(event_data.tournament_data['stages'][0]['matches'],
-                                             event_data.tournament_data['teams'])
-        f.write(swiss_matches)
-
-        f.write('== Single Elimination Tournament ==\n')
-        bracket = create_elim_bracket(event_data.tournament_data['stages'][1], event_data.tournament_data['teams'])
-        f.write(bracket)
+        for stage in event_data.tournament_data['stages']:
+            if stage['bracket']['type'] == 'swiss':
+                f.write('== Swiss Stage ==\n')
+                f.write('=== Swiss Standings ===\n')
+                swiss_table = create_swiss_table(stage['standings'])
+                f.write(swiss_table)
+                f.write('=== Swiss Matches ===\n')
+                swiss_matches = create_swiss_matches(stage['matches'], event_data.tournament_data['teams'])
+                f.write(swiss_matches)
+            elif stage['bracket']['type'] == 'elimination':
+                f.write('== Single Elimination Tournament ==\n')
+                bracket = create_elim_bracket(stage, event_data.tournament_data['teams'])
+                f.write(bracket)
+            elif stage['bracket']['type'] == 'roundrobin':
+                f.write('== ' + stage['name'] + ' ==\n')
+                round_robin_tables = create_round_robin_tables(stage, event_data.tournament_data['teams'])
+                f.write(round_robin_tables)
 
         f.write('== Participants ==\n')
         teams = create_team_list(event_data.tournament_data)
