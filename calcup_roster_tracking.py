@@ -31,22 +31,27 @@ def main():
                         'qualify_stage': 0,
                         'qualify_number': 16,
                         'finalized': True,
-                        'top_teams': dict()
+                        'top_teams': dict(),
+                        'new_players': 0
                       })
     event_list.append({
                         'data': battlefy_data.BattlefyData(ccs_winter_major_id),
                         'qualify_stage': 2,
                         'qualify_number': 16,
                         'finalized': True,
-                        'top_teams': dict()
+                        'top_teams': dict(),
+                        'new_players': 0
                       })
     event_list.append({
                         'data': battlefy_data.BattlefyData(ccs_spring_minor_id),
                         'qualify_stage': 0,
                         'qualify_number': 16,
                         'finalized': True,
-                        'top_teams': dict()
+                        'top_teams': dict(),
+                        'new_players': 0
                       })
+
+    player_event_count = dict()
 
     # create top_teams list for each event
     for event in event_list:
@@ -68,88 +73,98 @@ def main():
         event_player_team = dict()
         event_player_name = dict()
         event_teams = dict()
-        if top_teams:
-            for team in event['data'].tournament_data['teams']:
-                persistent_team_id = event['data'].tournament_data['teams'][team]['persistentTeamID']
-                if persistent_team_id in equivalent_teams:
-                    for dup_teams in equivalent_teams_list:
-                        if persistent_team_id in dup_teams:
-                            persistent_team_id = dup_teams[0]
-                event_teams[persistent_team_id] = event['data'].tournament_data['teams'][team]
 
-                for player in event['data'].tournament_data['teams'][team]['players']:
-                    if 'userID' in player:
-                        event_player_team[player['userID']] = persistent_team_id
-                        event_player_name[player['userID']] = player['inGameName']
+        for team in event['data'].tournament_data['teams']:
+            persistent_team_id = event['data'].tournament_data['teams'][team]['persistentTeamID']
+            if persistent_team_id in equivalent_teams:
+                for dup_teams in equivalent_teams_list:
+                    if persistent_team_id in dup_teams:
+                        persistent_team_id = dup_teams[0]
+            event_teams[persistent_team_id] = event['data'].tournament_data['teams'][team]
+
+            for player in event['data'].tournament_data['teams'][team]['players']:
+                if 'userID' in player:
+                    event_player_team[player['userID']] = persistent_team_id
+                    event_player_name[player['userID']] = player['inGameName']
+                    if player['userID'] not in player_event_count:
+                        player_event_count[player['userID']] = 1
+                        event['new_players'] += 1
                     else:
+                        player_event_count[player['userID']] += 1
+                        
+                else:
+                    if player['_id'] in eventid_to_missing_userid:
+                        event_player_team[eventid_to_missing_userid[player['_id']]] = persistent_team_id
+                        if 'userID' not in player_event_count:
+                            player_event_count[eventid_to_missing_userid[player['_id']]] = 1
+                        else:
+                            player_event_count[eventid_to_missing_userid[player['_id']]] += 1
+                    else:
+                        print("Missing userID for:", player['inGameName'], 'on team', event['data'].tournament_data['teams'][team]['name'])
+
+        for top_team in top_teams:
+            # Rename top team to match name used in current event
+            if top_team in event_teams:
+                top_teams[top_team]['name'] = event_teams[top_team]['name']
+
+            print("************************", top_teams[top_team]['name'], "************************")
+
+            persistent_team_id = top_teams[top_team]['persistentTeamID']
+            if persistent_team_id in equivalent_teams:
+                for dup_teams in equivalent_teams_list:
+                    if persistent_team_id in dup_teams:
+                        persistent_team_id = dup_teams[0]
+
+            # Find all players that transferred to a new team
+            for i, top_player in reversed(list(enumerate(top_teams[top_team]['players']))):
+                if top_player['userID'] in event_player_team:
+                    if event_player_team[top_player['userID']] != persistent_team_id:
+                        print("Removing", top_player['inGameName'], "from", top_teams[top_team]['name'],
+                              "as they transferred teams to",
+                              event_teams[event_player_team[top_player['userID']]]['name'])
+                        del top_teams[top_team]['players'][i]
+                    else:
+                        if top_teams[top_team]['players'][i]['inGameName'] != event_player_name[
+                                                                                    top_player['userID']]:
+                            print("Player changed in game name from",
+                                  top_teams[top_team]['players'][i]['inGameName'], "to",
+                                  event_player_name[top_player['userID']])
+                            # Fix name
+                            top_teams[top_team]['players'][i]['inGameName'] = \
+                                event_player_name[top_player['userID']]
+
+            # Find all players that joined a team and add them as a freeagent to the top_teams list
+            # And purge all players not participating
+            if top_team in event_teams:
+                team_list = list()
+                for player in top_teams[top_team]['players']:
+                    team_list.append(player['userID'])
+
+                team_list_not_participating = team_list.copy()
+                for player in event_teams[top_team]['players']:
+
+                    if 'userID' not in player:
                         if player['_id'] in eventid_to_missing_userid:
-                            event_player_team[eventid_to_missing_userid[player['_id']]] = persistent_team_id
+                            player['userID'] = eventid_to_missing_userid[player['_id']]
                         else:
-                            print("Missing userID for:", player['inGameName'], 'on team', event['data'].tournament_data['teams'][team]['name'])
+                            print("Missing userID for:", player['inGameName'], 'on team',
+                                  event['data'].tournament_data['teams'][team]['name'])
+                            continue
 
-            for top_team in top_teams:
-                # Rename top team to match name used in current event
-                if top_team in event_teams:
-                    top_teams[top_team]['name'] = event_teams[top_team]['name']
+                    if player['userID'] not in team_list:
+                        print(player['inGameName'], 'joined', top_teams[top_team]['name'], 'as sub')
+                        sub = player.copy()
+                        sub['isFreeAgent'] = 'True'
+                        top_teams[top_team]['players'].append(sub)
+                    else:
+                        team_list_not_participating.remove(player['userID'])
 
-                print("************************", top_teams[top_team]['name'], "************************")
-
-                persistent_team_id = top_teams[top_team]['persistentTeamID']
-                if persistent_team_id in equivalent_teams:
-                    for dup_teams in equivalent_teams_list:
-                        if persistent_team_id in dup_teams:
-                            persistent_team_id = dup_teams[0]
-
-                # Find all players that transferred to a new team
-                for i, top_player in reversed(list(enumerate(top_teams[top_team]['players']))):
-                    if top_player['userID'] in event_player_team:
-                        if event_player_team[top_player['userID']] != persistent_team_id:
-                            print("Removing", top_player['inGameName'], "from", top_teams[top_team]['name'],
-                                  "as they transferred teams to",
-                                  event_teams[event_player_team[top_player['userID']]]['name'])
+                if team_list_not_participating:
+                    for i, top_player in reversed(list(enumerate(top_teams[top_team]['players']))):
+                        if top_player['userID'] in team_list_not_participating:
+                            print('Removing', top_player['inGameName'], 'from', top_teams[top_team]['name'],
+                                  'as they were removed from the roster')
                             del top_teams[top_team]['players'][i]
-                        else:
-                            if top_teams[top_team]['players'][i]['inGameName'] != event_player_name[
-                                                                                        top_player['userID']]:
-                                print("Player changed in game name from",
-                                      top_teams[top_team]['players'][i]['inGameName'], "to",
-                                      event_player_name[top_player['userID']])
-                                # Fix name
-                                top_teams[top_team]['players'][i]['inGameName'] = \
-                                    event_player_name[top_player['userID']]
-
-                # Find all players that joined a team and add them as a freeagent to the top_teams list
-                # And purge all players not participating
-                if top_team in event_teams:
-                    team_list = list()
-                    for player in top_teams[top_team]['players']:
-                        team_list.append(player['userID'])
-
-                    team_list_not_participating = team_list.copy()
-                    for player in event_teams[top_team]['players']:
-
-                        if 'userID' not in player:
-                            if player['_id'] in eventid_to_missing_userid:
-                                player['userID'] = eventid_to_missing_userid[player['_id']]
-                            else:
-                                print("Missing userID for:", player['inGameName'], 'on team',
-                                      event['data'].tournament_data['teams'][team]['name'])
-                                continue
-
-                        if player['userID'] not in team_list:
-                            print(player['inGameName'], 'joined', top_teams[top_team]['name'], 'as sub')
-                            sub = player.copy()
-                            sub['isFreeAgent'] = 'True'
-                            top_teams[top_team]['players'].append(sub)
-                        else:
-                            team_list_not_participating.remove(player['userID'])
-
-                    if team_list_not_participating:
-                        for i, top_player in reversed(list(enumerate(top_teams[top_team]['players']))):
-                            if top_player['userID'] in team_list_not_participating:
-                                print('Removing', top_player['inGameName'], 'from', top_teams[top_team]['name'],
-                                      'as they were removed from the roster')
-                                del top_teams[top_team]['players'][i]
 
         # Next check the list of event['top_teams'] for any new teams and add them to top_teams dict
         for team in event['top_teams']:
@@ -188,6 +203,15 @@ def main():
     # with io.open(filename, 'w+', newline='\n', encoding='utf-8') as f:
     #     teams = create_team_list(event_data.tournament_data)
     #     f.write(teams)
+
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    print("Participated in 1 event: ", str(sum(map((1).__eq__, player_event_count.values()))))
+    print("Participated in 2 events: ", str(sum(map((2).__eq__, player_event_count.values()))))
+    print("Participated in 3 events: ", str(sum(map((3).__eq__, player_event_count.values()))))
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    for event in event_list:
+        print(event['data'].tournament_data['name'], "had", str(event['new_players']), "new players")
+
 
 
 if __name__ == '__main__':
