@@ -10,6 +10,7 @@ def sanitize_team_name(team_name):
     team_name_fixed = team_name_fixed.replace(' - ', ' ')
     team_name_fixed = team_name_fixed.replace(' : ', ' ').replace(':', ' ')
     team_name_fixed = team_name_fixed.replace('[', '').replace(']', '')
+    team_name_fixed = team_name_fixed.replace('  ', ' ')
     return team_name_fixed
 
 
@@ -32,8 +33,10 @@ def create_sidebar(data, wiki_name):
     sidebar += '|country=' + '\n'
     sidebar += '|format=' + '\n'
     sidebar += '|patch=' + '\n'
-    sidebar += '|sdate=' + datetime.strptime(data['checkInStartTime'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y/%m/%d') + '\n'
-    sidebar += '|edate=' + datetime.strptime(data['lastCompletedMatchAt'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y/%m/%d') + '\n'
+    sidebar += '|sdate=' + datetime.strptime(data['checkInStartTime'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(
+        '%Y/%m/%d') + '\n'
+    sidebar += '|edate=' + datetime.strptime(data['lastCompletedMatchAt'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(
+        '%Y/%m/%d') + '\n'
     sidebar += '|web=' + '\n'
     sidebar += '|bracket=https://battlefy.com/' + data['organization']['slug'] + '/' + data['slug'] + '/' \
                + data['_id'] + '/bracket-list' + '\n'
@@ -82,7 +85,7 @@ def create_event_format(data):
 
 def create_participants(data):
     participants = '{{TeamCardToggleButton}}\n'
-    participants += '{{TeamCard columns start|cols=5|height=200}}\n'
+    participants += '{{TeamCard columns start|cols=5|height=250}}\n'
 
     teams_ordered = ''
     teams = list()
@@ -96,12 +99,7 @@ def create_participants(data):
         teams_table += '|team=' + team_name_fixed + '\n'
         teams_table += '|image=\n'
         for idx, player in enumerate(data['teams'][team[0]]['players']):
-            if idx >= 5:
-                if idx == 5:
-                    teams_table += '|t2title=Substitutes\n'
-                player_tag = 't2p' + str(idx - 4)
-            else:
-                player_tag = 'p' + str(idx + 1)
+            player_tag = 'p' + str(idx + 1)
 
             player_name_fixed = player['inGameName'].replace('[', '').replace(']', '_')
             player_name_fixed = player_name_fixed.replace('_ ', '_').replace(' _', '_')
@@ -117,37 +115,25 @@ def create_participants(data):
     return participants + teams_ordered
 
 
-def create_swiss_table(standings):
-    dropped_style = 'style="color:black; background-color:#ff6961;"'
-    dropped_row_label = '|-\n| colspan="8" |\n|-\n| colspan="8" ' + dropped_style + '|Indicates Dropped\n'
+def create_swiss_table(stage):
+    dropped_style = 'down'
 
-    swiss_table = ''
-    swiss_header = '{| class="wikitable"\n'
-    swiss_header += '! Rank\n'
-    swiss_header += '! Team\n'
-    swiss_header += '! W\n'
-    swiss_header += '! T\n'
-    swiss_header += '! L\n'
-    swiss_header += '! P\n'
-    swiss_header += '! OW%\n'
-    swiss_header += '! W%\n'
+    swiss_table = '{{SwissTableLeague|rounds=' + str(stage['bracket']['roundsCount']) + '|diff=false\n'
+    for i in range(stage['bracket']['teamsCount']):
+        swiss_table += '|pbg' + str(i + 1) + '='
+        if (i + 1) % 8 == 0:
+            swiss_table += '\n'
+    if '\n' not in swiss_table[-1]:
+        swiss_table += '\n'
 
-    for rank, record in enumerate(standings):
+    for rank, record in enumerate(stage['standings']):
         if record['disqualified']:
-            swiss_table += '|- ' + dropped_style + '\n'
+            swiss_table += '|bg' + str(rank + 1) + '=' + dropped_style + ''
         else:
-            swiss_table += '|-\n'
-        swiss_table += '|' + str(rank+1) + '\n'
-        swiss_table += '|' + record['team']['name'] + '\n'
-        swiss_table += '|' + str(record['wins']) + '\n'
-        swiss_table += '|' + str(record['ties']) + '\n'
-        swiss_table += '|' + str(record['losses']) + '\n'
-        swiss_table += '|' + str(record['points']) + '\n'
-        swiss_table += '|' + "{:7.3f}".format(record['opponentsMatchWinPercentage']) + '\n'
-        swiss_table += '|' + "{:7.3f}".format(record['gameWinPercentage']) + '\n'
+            swiss_table += '|bg' + str(rank + 1) + '='
+        swiss_table += '|team' + str(rank + 1) + '=' + sanitize_team_name(record['team']['name']) + '\n'
 
-    if swiss_table:
-        swiss_table = swiss_header + swiss_table + dropped_row_label + '|}\n'
+    swiss_table += '}}\n'
 
     return swiss_table
 
@@ -156,52 +142,30 @@ def create_swiss_matches(matches, teams):
     swiss_match_table = ''
     rounds = dict()
 
-    win_style = 'style="color:black; background-color:#DDF4DD;"'
-
-    round_header = '{| class="wikitable"\n'
-    round_header += '! colspan="4" | Round '
+    round_header = ''
 
     for match in matches:
-        match_line = '|-\n'
-
-        if match['isBye']:
-            match_line += '| ' + win_style + '| '
-            match_line += teams[match['top']['teamID']]['name'] + '\n'
-            match_line += '| \n| \n|Bye\n'
-        else:
-
-            if match['top']['winner']:
-                match_line += '| ' + win_style + '| '
-                score = "'''" + str(match['top']['score']) + "'''"
-            else:
-                match_line += '| '
-                score = str(match['top']['score'])
-
-            match_line += teams[match['top']['teamID']]['name'] + '\n'
-            match_line += '| ' + score + '\n'
-
-            team_name = ''
-            if match['bottom']['winner']:
-                team_name += '| ' + win_style + '| '
-                score = "'''" + str(match['bottom']['score']) + "'''"
-            else:
-                team_name += '| '
-                score = str(match['bottom']['score'])
-
-            team_name += teams[match['bottom']['teamID']]['name'] + '\n'
-            match_line += '| ' + score + '\n' + team_name
-
+        match_line = create_match_maps(match, teams)
+        if not match_line:
+            continue
         try:
             rounds[str(match['roundNumber'])].append(match_line)
         except KeyError:
             rounds[str(match['roundNumber'])] = list()
             rounds[str(match['roundNumber'])].append(match_line)
 
-    for i in range(1, len(rounds)+1):
-        swiss_match_table += round_header + str(i) + '\n'
+    for i in range(1, len(rounds) + 1):
+        if i == 1:
+            swiss_match_table += '{{box|start|padding=2em}}\n'
+        else:
+            swiss_match_table += '{{box|break|padding=2em}}\n'
+        swiss_match_table += '====={{HiddenSort|Round ' + str(i) + '}}=====\n'
+        swiss_match_table += '{{MatchListStart|width=400px|title=Round ' + str(i) + ' Matches|matchsection=Round ' \
+                             + str(i) + '|hide=false}}\n'
         for match in rounds[str(i)]:
             swiss_match_table += match
-        swiss_match_table += '|}\n'
+        swiss_match_table += '{{MatchListEnd}}\n'
+    swiss_match_table += '{{box|end}}\n'
 
     return swiss_match_table
 
@@ -219,7 +183,7 @@ def create_elim_bracket(stage, teams):
 
     for match in stage['matches']:
         bracket += '|RD' + str(match['roundNumber'])
-        bracket += '-seed' + str(round_team_number[match['roundNumber']-1])
+        bracket += '-seed' + str(round_team_number[match['roundNumber'] - 1])
         try:
             bracket += '=' + str(match['top']['seedNumber'])
         except KeyError:
@@ -227,30 +191,32 @@ def create_elim_bracket(stage, teams):
 
         bracket += '|RD' + str(match['roundNumber'])
         if 'teamID' in match['top']:
-            bracket += '-team' + str(round_team_number[match['roundNumber']-1]) + '=' + teams[match['top']['teamID']]['name']
+            bracket += '-team' + str(round_team_number[match['roundNumber'] - 1]) + '=' + teams[match['top']['teamID']][
+                'name']
         else:
             bracket += '-team' + str(round_team_number[match['roundNumber'] - 1]) + '=BYE'
         if 'score' in match['top']:
             bracket += '|RD' + str(match['roundNumber'])
-            bracket += '-score' + str(round_team_number[match['roundNumber']-1]) + '=' + str(match['top']['score'])
+            bracket += '-score' + str(round_team_number[match['roundNumber'] - 1]) + '=' + str(match['top']['score'])
         bracket += '\n'
 
-        round_team_number[match['roundNumber']-1] += 1
+        round_team_number[match['roundNumber'] - 1] += 1
 
         bracket += '|RD' + str(match['roundNumber'])
-        bracket += '-seed' + str(round_team_number[match['roundNumber']-1])
+        bracket += '-seed' + str(round_team_number[match['roundNumber'] - 1])
         try:
             bracket += '=' + str(match['bottom']['seedNumber'])
         except KeyError:
             pass
         bracket += '|RD' + str(match['roundNumber'])
         if 'teamID' in match['bottom']:
-            bracket += '-team' + str(round_team_number[match['roundNumber']-1]) + '=' + teams[match['bottom']['teamID']]['name']
+            bracket += '-team' + str(round_team_number[match['roundNumber'] - 1]) + '=' + \
+                       teams[match['bottom']['teamID']]['name']
         else:
             bracket += '-team' + str(round_team_number[match['roundNumber'] - 1]) + '=BYE'
         if 'score' in match['bottom']:
             bracket += '|RD' + str(match['roundNumber'])
-            bracket += '-score' + str(round_team_number[match['roundNumber']-1]) + '=' + str(match['bottom']['score'])
+            bracket += '-score' + str(round_team_number[match['roundNumber'] - 1]) + '=' + str(match['bottom']['score'])
         bracket += '\n'
 
         round_team_number[match['roundNumber'] - 1] += 1
@@ -258,6 +224,35 @@ def create_elim_bracket(stage, teams):
     bracket += '}}\n'
 
     return bracket
+
+
+def create_match_maps(match, teams):
+    match_line = ''
+    if match['isBye']:
+        return match_line
+
+    match_line = '{{MatchMaps\n'
+    match_line += '|date=\n'
+
+    match_line += '|team1=' + sanitize_team_name(teams[match['top']['teamID']]['name'])
+    match_line += '|team2=' + sanitize_team_name(teams[match['bottom']['teamID']]['name'])
+
+    if match['top']['winner']:
+        match_line += '|winner=1\n'
+    elif match['bottom']['winner']:
+        match_line += '|winner=2\n'
+    else:
+        match_line += '|winner=0\n'
+
+    match_line += '|games1=' + str(match['top']['score'])
+    match_line += '|games2=' + str(match['bottom']['score']) + '\n'
+    match_line += '|details={{BracketMatchSummary\n'
+    match_line += '|date=|finished=true\n'
+    match_line += '|twitch= |youtube=\n'
+    match_line += '|vod=\n'
+    match_line += '}}\n'
+    match_line += '}}\n'
+    return match_line
 
 
 def create_round_robin_tables(stage, teams):
@@ -273,7 +268,7 @@ def create_round_robin_tables(stage, teams):
                 if standing_id == standing['_id']:
                     # if standing['disqualified']:
                     #     has_drop = True
-                    group_table += '|bg' + str(pos + 1) + '=down|team' + str(pos + 1) + "="\
+                    group_table += '|bg' + str(pos + 1) + '=down|team' + str(pos + 1) + "=" \
                                    + standing['team']['name'] + '\n'
 
         group_header += '|tiebreaker1=series\n'
@@ -284,26 +279,7 @@ def create_round_robin_tables(stage, teams):
         match_table = '{{MatchListStart|title=Group' + group['name'] + ' Matches|width=450px|hide=true}}\n'
 
         for match in group['matches']:
-            if match['isBye']:
-                continue
-
-            match_line = '{{MatchMaps\n'
-            match_line += '|date=\n'
-
-            match_line += '|team1=' + sanitize_team_name(teams[match['top']['teamID']]['name'])
-            match_line += '|team2=' + sanitize_team_name(teams[match['bottom']['teamID']]['name'])
-
-            if match['top']['winner']:
-                match_line += '|winner=1\n'
-            elif match['bottom']['winner']:
-                match_line += '|winner=2\n'
-            else:
-                match_line += '|winner=0\n'
-
-            match_line += '|games1=' + str(match['top']['score'])
-            match_line += '|games2=' + str(match['bottom']['score']) + '\n'
-            match_line += '}}\n'
-
+            match_line = create_match_maps(match, teams)
             match_table += match_line
         tables += match_table
         tables += '{{MatchListEnd}}\n'
@@ -335,7 +311,7 @@ def main():
     tournament_id = '603c00fbfe4fb811b3168f5b'
     wiki_name = 'Calrissian Cup/Spring/Minor'
 
-    event_data = battlefy_data. BattlefyData(tournament_id)
+    event_data = battlefy_data.BattlefyData(tournament_id)
     event_data.load_tournament_data()
 
     event_path = event_data.get_tournament_data_path()
@@ -363,12 +339,12 @@ def main():
         for stage in event_data.tournament_data['stages']:
             if stage['bracket']['type'] == 'swiss':
                 f.write('===Swiss Stage===\n')
-                # f.write('====Swiss Standings====\n')
-                # swiss_table = create_swiss_table(stage['standings'])
-                # f.write(swiss_table)
-                # f.write('====Swiss Matches====\n')
-                # swiss_matches = create_swiss_matches(stage['matches'], event_data.tournament_data['teams'])
-                # f.write(swiss_matches)
+                f.write('====Swiss Standings====\n')
+                swiss_table = create_swiss_table(stage)
+                f.write(swiss_table)
+                f.write('====Swiss Match Results====\n')
+                swiss_matches = create_swiss_matches(stage['matches'], event_data.tournament_data['teams'])
+                f.write(swiss_matches)
             elif stage['bracket']['type'] == 'elimination':
                 f.write('===Playoffs===\n')
                 # bracket = create_elim_bracket(stage, event_data.tournament_data['teams'])
@@ -377,8 +353,6 @@ def main():
                 f.write('===' + stage['name'] + '===\n')
                 round_robin_tables = create_round_robin_tables(stage, event_data.tournament_data['teams'])
                 f.write(round_robin_tables)
-
-
 
 
 if __name__ == '__main__':
