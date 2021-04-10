@@ -2,6 +2,22 @@ import battlefy_data
 from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
+import os
+import csv
+import calcup_roster_tracking
+
+
+def sort_csv(csv_file):
+    with open(csv_file, mode='r', encoding='utf-8', newline='') as f, open(csv_file + '_sorted', 'w', encoding='utf-8', newline='') as final:
+        writer = csv.writer(final)
+        reader = csv.reader(f)
+        header = next(reader)
+        writer.writerow(header)
+        sorted2 = sorted(reader, key=lambda row: (row[1], row[0], row[2]))
+        writer.writerows(sorted2)
+
+    os.remove(csv_file)
+    os.rename(csv_file + '_sorted', csv_file)
 
 
 def sanitize_team_name(team_name):
@@ -12,6 +28,15 @@ def sanitize_team_name(team_name):
     team_name_fixed = team_name_fixed.replace('[', '').replace(']', '')
     team_name_fixed = team_name_fixed.replace('  ', ' ')
     return team_name_fixed
+
+
+def sanitize_player_name(player_name):
+    player_name_fixed = player_name.replace('[', '').replace(']', '_')
+    player_name_fixed = player_name_fixed.replace('_ ', '_').replace(' _', '_')
+    player_name_fixed = player_name_fixed.replace(' <', '_').replace('> ', '_')
+    player_name_fixed = player_name_fixed.replace('<', '').replace('>', '')
+    player_name_fixed = player_name_fixed.replace(' | ', ' ').replace('|', ' ')
+    return player_name_fixed
 
 
 def create_sidebar(data, wiki_name):
@@ -83,36 +108,105 @@ def create_event_format(data):
     return event_format
 
 
-def create_participants(data):
-    participants = '{{TeamCardToggleButton}}\n'
-    participants += '{{TeamCard columns start|cols=5|height=250}}\n'
+def create_participants(data, battlefy_liquipedia_players, battlefy_liquipedia_teams, dynamic=[]):
+    header = '{{TeamCardToggleButton}}\n'
 
     teams_ordered = ''
+
+    for stage in data['stages']:
+        for place, standing in enumerate(stage['standings']):
+            if 'place' in standing:
+                data['teams'][standing['team']['_id']]['place'] = \
+                    standing['place'] + (1 - 1 / data['teams'][standing['team']['_id']]['place'])
+            else:
+                data['teams'][standing['team']['_id']]['place'] = len(stage['standings']) + place
+
     teams = list()
     for team_id in data['teams']:
-        teams.append((team_id, data['teams'][team_id]['name']))
-    teams = sorted(teams, key=itemgetter(1))
+        teams.append((team_id, data['teams'][team_id]['name'], data['teams'][team_id]['place'], data['teams'][team_id]['persistentTeamID']))
+    teams = sorted(teams, key=itemgetter(2, 1))
 
-    for team in teams:
-        teams_table = '{{TeamCard\n'
-        team_name_fixed = sanitize_team_name(team[1])
-        teams_table += '|team=' + team_name_fixed + '\n'
-        teams_table += '|image=\n'
-        for idx, player in enumerate(data['teams'][team[0]]['players']):
-            player_tag = 'p' + str(idx + 1)
+    player_wiki_info = {}
+    with open(battlefy_liquipedia_players, 'r+', encoding='utf-8') as f:
+        csvReader = csv.DictReader(f)
+        for rows in csvReader:
+            id = rows['id']
+            player_wiki_info[id] = rows
+            del player_wiki_info[id]['id']
 
-            player_name_fixed = player['inGameName'].replace('[', '').replace(']', '_')
-            player_name_fixed = player_name_fixed.replace('_ ', '_').replace(' _', '_')
-            player_name_fixed = player_name_fixed.replace(' <', '_').replace('> ', '_')
-            player_name_fixed = player_name_fixed.replace('<', '').replace('>', '')
-            player_name_fixed = player_name_fixed.replace(' | ', ' ').replace('|', ' ')
-            teams_table += '|' + player_tag + '=' + player_name_fixed + ' |' + player_tag + 'flag=\n'
-        teams_table += '|c= |cflag=\n'
-        teams_table += '|qualifier=\n'
-        teams_table += '}}\n'
-        teams_ordered += teams_table
+    team_wiki_info = {}
+    with open(battlefy_liquipedia_teams, 'r+', encoding='utf-8') as f:
+        csvReader = csv.DictReader(f)
+        for rows in csvReader:
+            id = rows['id']
+            team_wiki_info[id] = rows
+            del team_wiki_info[id]['id']
 
-    return participants + teams_ordered
+    with open(battlefy_liquipedia_players, 'a+', newline='\n', encoding='utf-8') as blp:
+        with open(battlefy_liquipedia_teams, 'a+', newline='\n', encoding='utf-8') as blt:
+            dynamic_idx = 0
+            if dynamic:
+                header += '{{tabs dynamic\n'
+                header += '|name' + str(dynamic_idx+1) + '=' + dynamic[dynamic_idx]['tab_name'] + '\n'
+                header += '|This=1\n'
+                header += '|content' + str(dynamic_idx+1) + '=' + '\n'
+                header += '{{TeamCard columns start|cols=5|height=250}}\n'
+
+            for team_num, team in enumerate(teams):
+                if dynamic:
+                    if team_num == dynamic[dynamic_idx]['count']:
+                        teams_ordered += '{{TeamCard columns end}}\n'
+                        dynamic_idx += 1
+                        teams_ordered += '|name' + str(dynamic_idx + 1) + '=' + dynamic[dynamic_idx]['tab_name'] + '\n'
+                        teams_ordered += '|content' + str(dynamic_idx+1) + '=' + '\n'
+                        teams_ordered += '{{TeamCard columns start|cols=5|height=250}}\n'
+                else:
+                    if team_num == 0:
+                        teams_ordered += '{{TeamCard columns start|cols=5|height=250}}\n'
+
+                teams_table = '{{TeamCard\n'
+                if team[3] in team_wiki_info:
+                    team_name_fixed = team_wiki_info[team[3]]['name']
+                    team_logo = team_wiki_info[team[3]]['image']
+                else:
+                    team_name_fixed = sanitize_team_name(team[1])
+                    team_logo = ''
+                    blt.write(team[3] + ',' + team_name_fixed + ',\n')
+                    print("Adding team to Team-Wiki list", team_name_fixed)
+
+                teams_table += '|team=' + team_name_fixed + '\n'
+                teams_table += '|image=' + team_logo + '\n'
+                for idx, player in enumerate(data['teams'][team[0]]['players']):
+                    player_tag = 'p' + str(idx + 1)
+                    if player['_id'] in calcup_roster_tracking.eventid_to_missing_userid:
+                        player['userID'] = calcup_roster_tracking.eventid_to_missing_userid[player['_id']]
+
+                    if player['userID'] in player_wiki_info:
+                        player_name_fixed = player_wiki_info[player['userID']]['name']
+                        player_flag = player_wiki_info[player['userID']]['flag']
+                        player_link = player_wiki_info[player['userID']]['link']
+                    else:
+                        player_name_fixed = sanitize_player_name(player['inGameName'])
+                        player_flag = ''
+                        player_link = ''
+                        blp.write(player['userID'] + ',' + player_name_fixed + ',\n')
+                        print("Adding player to Player-Wiki list", player_name_fixed)
+
+                    teams_table += '|' + player_tag + '=' + player_name_fixed \
+                                   + ' |' + player_tag + 'flag=' + player_flag
+                    if player_link:
+                        teams_table += ' |' + player_tag + 'link=' + player_link
+                    teams_table += '\n'
+
+                # teams_table += '|c= |cflag=\n'
+                # teams_table += '|qualifier=\n'
+                teams_table += '}}\n'
+                teams_ordered += teams_table
+
+    footer = '{{TeamCard columns end}}\n'
+    if dynamic:
+        footer += '}}\n'
+    return header + teams_ordered + footer
 
 
 def create_swiss_table(stage):
@@ -308,8 +402,19 @@ def create_prize_pool(prize):
 
 
 def main():
-    tournament_id = '603c00fbfe4fb811b3168f5b'
-    wiki_name = 'Calrissian Cup/Spring/Minor'
+    tournament_id = '5ff3354193edb53839d44d55'
+    wiki_name = 'Calrissian Cup/Winter/Minor'
+    participant_tabs = [
+        {'tab_name': 'Top 16',
+         'count': 16},
+        {'tab_name': 'Top 32',
+         'count': 32},
+        {'tab_name': 'Other Notable Participants',
+         'count': -1},
+    ]
+
+    battlefy_liquipedia_players = 'battlefy-liquipedia-players.csv'
+    battlefy_liquipedia_teams = 'battlefy-liquipedia-teams.csv'
 
     event_data = battlefy_data.BattlefyData(tournament_id)
     event_data.load_tournament_data()
@@ -332,7 +437,8 @@ def main():
         prize_pool = create_prize_pool(event_data.tournament_data['prizes'])
         f.write(prize_pool)
         f.write('==Participants==\n')
-        teams = create_participants(event_data.tournament_data)
+        teams = create_participants(event_data.tournament_data, battlefy_liquipedia_players, battlefy_liquipedia_teams,
+                                    dynamic=participant_tabs)
         f.write(teams)
 
         f.write('==Results==\n')
@@ -353,7 +459,8 @@ def main():
                 f.write('===' + stage['name'] + '===\n')
                 round_robin_tables = create_round_robin_tables(stage, event_data.tournament_data['teams'])
                 f.write(round_robin_tables)
-
+    sort_csv(battlefy_liquipedia_players)
+    sort_csv(battlefy_liquipedia_teams)
 
 if __name__ == '__main__':
     main()

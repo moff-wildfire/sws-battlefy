@@ -19,6 +19,42 @@ eventid_to_missing_userid['6037ea4f3cc6e32afb733736'] = '60364e766e40911bb679b8f
 # TODO: Eventually may need to account for a team reset
 
 
+def create_event_team_player_lists(event):
+    event_player_team = dict()
+    event_player_name = dict()
+    event_teams = dict()
+    player_event_count = dict()
+
+    for team in event['data'].tournament_data['teams']:
+        persistent_team_id = event['data'].tournament_data['teams'][team]['persistentTeamID']
+        if persistent_team_id in equivalent_teams:
+            for dup_teams in equivalent_teams_list:
+                if persistent_team_id in dup_teams:
+                    persistent_team_id = dup_teams[0]
+        event_teams[persistent_team_id] = event['data'].tournament_data['teams'][team]
+
+        for player in event['data'].tournament_data['teams'][team]['players']:
+            if 'userID' in player:
+                event_player_team[player['userID']] = persistent_team_id
+                event_player_name[player['userID']] = player['inGameName']
+                if player['userID'] not in player_event_count:
+                    player_event_count[player['userID']] = 1
+                    event['new_players'] += 1
+                else:
+                    player_event_count[player['userID']] += 1
+
+            else:
+                if player['_id'] in eventid_to_missing_userid:
+                    event_player_team[eventid_to_missing_userid[player['_id']]] = persistent_team_id
+                    if 'userID' not in player_event_count:
+                        player_event_count[eventid_to_missing_userid[player['_id']]] = 1
+                    else:
+                        player_event_count[eventid_to_missing_userid[player['_id']]] += 1
+                else:
+                    print("Missing userID for:", player['inGameName'], 'on team',
+                          event['data'].tournament_data['teams'][team]['name'])
+    return event_teams, event_player_team, event_player_name, event_teams
+
 def main():
 
     ccs_winter_minor_id = '5ff3354193edb53839d44d55'
@@ -74,33 +110,7 @@ def main():
         event_player_name = dict()
         event_teams = dict()
 
-        for team in event['data'].tournament_data['teams']:
-            persistent_team_id = event['data'].tournament_data['teams'][team]['persistentTeamID']
-            if persistent_team_id in equivalent_teams:
-                for dup_teams in equivalent_teams_list:
-                    if persistent_team_id in dup_teams:
-                        persistent_team_id = dup_teams[0]
-            event_teams[persistent_team_id] = event['data'].tournament_data['teams'][team]
-
-            for player in event['data'].tournament_data['teams'][team]['players']:
-                if 'userID' in player:
-                    event_player_team[player['userID']] = persistent_team_id
-                    event_player_name[player['userID']] = player['inGameName']
-                    if player['userID'] not in player_event_count:
-                        player_event_count[player['userID']] = 1
-                        event['new_players'] += 1
-                    else:
-                        player_event_count[player['userID']] += 1
-                        
-                else:
-                    if player['_id'] in eventid_to_missing_userid:
-                        event_player_team[eventid_to_missing_userid[player['_id']]] = persistent_team_id
-                        if 'userID' not in player_event_count:
-                            player_event_count[eventid_to_missing_userid[player['_id']]] = 1
-                        else:
-                            player_event_count[eventid_to_missing_userid[player['_id']]] += 1
-                    else:
-                        print("Missing userID for:", player['inGameName'], 'on team', event['data'].tournament_data['teams'][team]['name'])
+        event_teams, event_player_team, event_player_name, event_teams = create_event_team_player_lists(event)
 
         for top_team in top_teams:
             # Rename top team to match name used in current event
