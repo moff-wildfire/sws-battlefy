@@ -1,42 +1,10 @@
 import battlefy_data
+import battlefy_wiki_linkings
 from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
-import os
-import csv
+
 import calcup_roster_tracking
-
-
-def sort_csv(csv_file):
-    with open(csv_file, mode='r', encoding='utf-8', newline='') as f, open(csv_file + '_sorted', 'w', encoding='utf-8', newline='') as final:
-        writer = csv.writer(final)
-        reader = csv.reader(f)
-        header = next(reader)
-        writer.writerow(header)
-        sorted2 = sorted(reader, key=lambda row: (row[1], row[0], row[2]))
-        writer.writerows(sorted2)
-
-    os.remove(csv_file)
-    os.rename(csv_file + '_sorted', csv_file)
-
-
-def sanitize_team_name(team_name):
-    team_name_fixed = team_name.replace(' | ', ' ').replace('|', ' ')
-    team_name_fixed = team_name_fixed.replace('(', '').replace(')', '')
-    team_name_fixed = team_name_fixed.replace(' - ', ' ')
-    team_name_fixed = team_name_fixed.replace(' : ', ' ').replace(':', ' ')
-    team_name_fixed = team_name_fixed.replace('[', '').replace(']', '')
-    team_name_fixed = team_name_fixed.replace('  ', ' ')
-    return team_name_fixed
-
-
-def sanitize_player_name(player_name):
-    player_name_fixed = player_name.replace('[', '').replace(']', '_')
-    player_name_fixed = player_name_fixed.replace('_ ', '_').replace(' _', '_')
-    player_name_fixed = player_name_fixed.replace(' <', '_').replace('> ', '_')
-    player_name_fixed = player_name_fixed.replace('<', '').replace('>', '')
-    player_name_fixed = player_name_fixed.replace(' | ', ' ').replace('|', ' ')
-    return player_name_fixed
 
 
 def create_sidebar(data, wiki_name):
@@ -108,11 +76,12 @@ def create_event_format(data):
     return event_format
 
 
-def create_participants(data, battlefy_liquipedia_players, battlefy_liquipedia_teams, dynamic=[]):
+def create_participants(data, bw_players, bw_teams, dynamic=[]):
     header = '{{TeamCardToggleButton}}\n'
 
     teams_ordered = ''
 
+    # Use prior rounds as a tiebreaker for when multiple teams have the same place at the end
     for stage in data['stages']:
         for place, standing in enumerate(stage['standings']):
             if 'place' in standing:
@@ -123,85 +92,54 @@ def create_participants(data, battlefy_liquipedia_players, battlefy_liquipedia_t
 
     teams = list()
     for team_id in data['teams']:
-        teams.append((team_id, data['teams'][team_id]['name'], data['teams'][team_id]['place'], data['teams'][team_id]['persistentTeamID']))
+        teams.append((team_id,
+                      data['teams'][team_id]['name'],
+                      data['teams'][team_id]['place'],
+                      data['teams'][team_id]['persistentTeamID']))
     teams = sorted(teams, key=itemgetter(2, 1))
 
-    player_wiki_info = {}
-    with open(battlefy_liquipedia_players, 'r+', encoding='utf-8') as f:
-        csvReader = csv.DictReader(f)
-        for rows in csvReader:
-            id = rows['id']
-            player_wiki_info[id] = rows
-            del player_wiki_info[id]['id']
+    dynamic_idx = 0
+    if dynamic:
+        header += '{{tabs dynamic\n'
+        header += '|name' + str(dynamic_idx+1) + '=' + dynamic[dynamic_idx]['tab_name'] + '\n'
+        header += '|This=1\n'
+        header += '|content' + str(dynamic_idx+1) + '=' + '\n'
+        header += '{{TeamCard columns start|cols=5|height=250}}\n'
 
-    team_wiki_info = {}
-    with open(battlefy_liquipedia_teams, 'r+', encoding='utf-8') as f:
-        csvReader = csv.DictReader(f)
-        for rows in csvReader:
-            id = rows['id']
-            team_wiki_info[id] = rows
-            del team_wiki_info[id]['id']
+    for team_num, team in enumerate(teams):
+        if dynamic:
+            if team_num == dynamic[dynamic_idx]['count']:
+                teams_ordered += '{{TeamCard columns end}}\n'
+                dynamic_idx += 1
+                teams_ordered += '|name' + str(dynamic_idx + 1) + '=' + dynamic[dynamic_idx]['tab_name'] + '\n'
+                teams_ordered += '|content' + str(dynamic_idx+1) + '=' + '\n'
+                teams_ordered += '{{TeamCard columns start|cols=5|height=250}}\n'
+        else:
+            if team_num == 0:
+                teams_ordered += '{{TeamCard columns start|cols=5|height=250}}\n'
 
-    with open(battlefy_liquipedia_players, 'a+', newline='\n', encoding='utf-8') as blp:
-        with open(battlefy_liquipedia_teams, 'a+', newline='\n', encoding='utf-8') as blt:
-            dynamic_idx = 0
-            if dynamic:
-                header += '{{tabs dynamic\n'
-                header += '|name' + str(dynamic_idx+1) + '=' + dynamic[dynamic_idx]['tab_name'] + '\n'
-                header += '|This=1\n'
-                header += '|content' + str(dynamic_idx+1) + '=' + '\n'
-                header += '{{TeamCard columns start|cols=5|height=250}}\n'
+        teams_table = '{{TeamCard\n'
+        team_info = bw_teams.get_team_info(team[3], team[1])
 
-            for team_num, team in enumerate(teams):
-                if dynamic:
-                    if team_num == dynamic[dynamic_idx]['count']:
-                        teams_ordered += '{{TeamCard columns end}}\n'
-                        dynamic_idx += 1
-                        teams_ordered += '|name' + str(dynamic_idx + 1) + '=' + dynamic[dynamic_idx]['tab_name'] + '\n'
-                        teams_ordered += '|content' + str(dynamic_idx+1) + '=' + '\n'
-                        teams_ordered += '{{TeamCard columns start|cols=5|height=250}}\n'
-                else:
-                    if team_num == 0:
-                        teams_ordered += '{{TeamCard columns start|cols=5|height=250}}\n'
+        teams_table += '|team=' + team_info['name'] + '\n'
+        teams_table += '|image=' + team_info['image'] + '\n'
+        for idx, player in enumerate(data['teams'][team[0]]['players']):
+            player_tag = 'p' + str(idx + 1)
+            if player['_id'] in calcup_roster_tracking.eventid_to_missing_userid:
+                player['userID'] = calcup_roster_tracking.eventid_to_missing_userid[player['_id']]
 
-                teams_table = '{{TeamCard\n'
-                if team[3] in team_wiki_info:
-                    team_name_fixed = team_wiki_info[team[3]]['name']
-                    team_logo = team_wiki_info[team[3]]['image']
-                else:
-                    team_name_fixed = sanitize_team_name(team[1])
-                    team_logo = ''
-                    blt.write(team[3] + ',' + team_name_fixed + ',\n')
-                    print("Adding team to Team-Wiki list", team_name_fixed)
+            player_info = bw_players.get_player_info(player['userID'], player['inGameName'])
 
-                teams_table += '|team=' + team_name_fixed + '\n'
-                teams_table += '|image=' + team_logo + '\n'
-                for idx, player in enumerate(data['teams'][team[0]]['players']):
-                    player_tag = 'p' + str(idx + 1)
-                    if player['_id'] in calcup_roster_tracking.eventid_to_missing_userid:
-                        player['userID'] = calcup_roster_tracking.eventid_to_missing_userid[player['_id']]
+            teams_table += '|' + player_tag + '=' + player_info['name'] \
+                           + ' |' + player_tag + 'flag=' + player_info['flag']
+            if player_info['link']:
+                teams_table += ' |' + player_tag + 'link=' + player_info['link']
+            teams_table += '\n'
 
-                    if player['userID'] in player_wiki_info:
-                        player_name_fixed = player_wiki_info[player['userID']]['name']
-                        player_flag = player_wiki_info[player['userID']]['flag']
-                        player_link = player_wiki_info[player['userID']]['link']
-                    else:
-                        player_name_fixed = sanitize_player_name(player['inGameName'])
-                        player_flag = ''
-                        player_link = ''
-                        blp.write(player['userID'] + ',' + player_name_fixed + ',\n')
-                        print("Adding player to Player-Wiki list", player_name_fixed)
-
-                    teams_table += '|' + player_tag + '=' + player_name_fixed \
-                                   + ' |' + player_tag + 'flag=' + player_flag
-                    if player_link:
-                        teams_table += ' |' + player_tag + 'link=' + player_link
-                    teams_table += '\n'
-
-                # teams_table += '|c= |cflag=\n'
-                # teams_table += '|qualifier=\n'
-                teams_table += '}}\n'
-                teams_ordered += teams_table
+        # teams_table += '|c= |cflag=\n'
+        # teams_table += '|qualifier=\n'
+        teams_table += '}}\n'
+        teams_ordered += teams_table
 
     footer = '{{TeamCard columns end}}\n'
     if dynamic:
@@ -209,7 +147,7 @@ def create_participants(data, battlefy_liquipedia_players, battlefy_liquipedia_t
     return header + teams_ordered + footer
 
 
-def create_swiss_table(stage):
+def create_swiss_table(stage, bw_teams):
     dropped_style = 'down'
 
     swiss_table = '{{SwissTableLeague|rounds=' + str(stage['bracket']['roundsCount']) + '|diff=false\n'
@@ -225,21 +163,22 @@ def create_swiss_table(stage):
             swiss_table += '|bg' + str(rank + 1) + '=' + dropped_style + ''
         else:
             swiss_table += '|bg' + str(rank + 1) + '='
-        swiss_table += '|team' + str(rank + 1) + '=' + sanitize_team_name(record['team']['name']) + '\n'
+        team_info = bw_teams.get_team_info(record['team']['persistentTeamID'], record['team']['name'])
+        swiss_table += '|team' + str(rank + 1) + '=' + team_info['name'] + '\n'
 
     swiss_table += '}}\n'
 
     return swiss_table
 
 
-def create_swiss_matches(matches, teams):
+def create_swiss_matches(matches, teams, bw_teams):
     swiss_match_table = ''
     rounds = dict()
 
     round_header = ''
 
     for match in matches:
-        match_line = create_match_maps(match, teams)
+        match_line = create_match_maps(match, teams, bw_teams)
         if not match_line:
             continue
         try:
@@ -320,7 +259,7 @@ def create_elim_bracket(stage, teams):
     return bracket
 
 
-def create_match_maps(match, teams):
+def create_match_maps(match, teams, bw_teams):
     match_line = ''
     if match['isBye']:
         return match_line
@@ -328,8 +267,14 @@ def create_match_maps(match, teams):
     match_line = '{{MatchMaps\n'
     match_line += '|date=\n'
 
-    match_line += '|team1=' + sanitize_team_name(teams[match['top']['teamID']]['name'])
-    match_line += '|team2=' + sanitize_team_name(teams[match['bottom']['teamID']]['name'])
+    team_top = bw_teams.get_team_info(teams[match['top']['teamID']]['persistentTeamID'],
+                                      teams[match['top']['teamID']]['name'])
+
+    team_bot = bw_teams.get_team_info(teams[match['bottom']['teamID']]['persistentTeamID'],
+                                      teams[match['bottom']['teamID']]['name'])
+
+    match_line += '|team1=' + team_top['name']
+    match_line += '|team2=' + team_bot['name']
 
     if match['top']['winner']:
         match_line += '|winner=1\n'
@@ -349,7 +294,7 @@ def create_match_maps(match, teams):
     return match_line
 
 
-def create_round_robin_tables(stage, teams):
+def create_round_robin_tables(stage, teams, bw_teams):
     tables = ''
     for group in stage['groups']:
         tables += '===={{HiddenSort|Group ' + group['name'] + '}}====\n'
@@ -373,7 +318,7 @@ def create_round_robin_tables(stage, teams):
         match_table = '{{MatchListStart|title=Group' + group['name'] + ' Matches|width=450px|hide=true}}\n'
 
         for match in group['matches']:
-            match_line = create_match_maps(match, teams)
+            match_line = create_match_maps(match, teams, bw_teams)
             match_table += match_line
         tables += match_table
         tables += '{{MatchListEnd}}\n'
@@ -413,8 +358,8 @@ def main():
          'count': -1},
     ]
 
-    battlefy_liquipedia_players = 'battlefy-liquipedia-players.csv'
-    battlefy_liquipedia_teams = 'battlefy-liquipedia-teams.csv'
+    bw_teams = battlefy_wiki_linkings.BattlefyWikiTeamLinkings()
+    bw_players = battlefy_wiki_linkings.BattlefyWikiPlayerLinkings()
 
     event_data = battlefy_data.BattlefyData(tournament_id)
     event_data.load_tournament_data()
@@ -437,7 +382,7 @@ def main():
         prize_pool = create_prize_pool(event_data.tournament_data['prizes'])
         f.write(prize_pool)
         f.write('==Participants==\n')
-        teams = create_participants(event_data.tournament_data, battlefy_liquipedia_players, battlefy_liquipedia_teams,
+        teams = create_participants(event_data.tournament_data, bw_players, bw_teams,
                                     dynamic=participant_tabs)
         f.write(teams)
 
@@ -446,10 +391,10 @@ def main():
             if stage['bracket']['type'] == 'swiss':
                 f.write('===Swiss Stage===\n')
                 f.write('====Swiss Standings====\n')
-                swiss_table = create_swiss_table(stage)
+                swiss_table = create_swiss_table(stage, bw_teams)
                 f.write(swiss_table)
                 f.write('====Swiss Match Results====\n')
-                swiss_matches = create_swiss_matches(stage['matches'], event_data.tournament_data['teams'])
+                swiss_matches = create_swiss_matches(stage['matches'], event_data.tournament_data['teams'], bw_teams)
                 f.write(swiss_matches)
             elif stage['bracket']['type'] == 'elimination':
                 f.write('===Playoffs===\n')
@@ -457,10 +402,9 @@ def main():
                 # f.write(bracket)
             elif stage['bracket']['type'] == 'roundrobin':
                 f.write('===' + stage['name'] + '===\n')
-                round_robin_tables = create_round_robin_tables(stage, event_data.tournament_data['teams'])
+                round_robin_tables = create_round_robin_tables(stage, event_data.tournament_data['teams'], bw_teams)
                 f.write(round_robin_tables)
-    sort_csv(battlefy_liquipedia_players)
-    sort_csv(battlefy_liquipedia_teams)
+
 
 if __name__ == '__main__':
     main()
