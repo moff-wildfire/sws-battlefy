@@ -3,6 +3,7 @@ id,name,image,teamteamplate
 5ff54ad6ba1b0c11a8f62301,Aces5 The S.A.R.L.A.C.C. Group,,aces5 the s.a.r.l.a.c.c. group
 604e88a641c26e4b6eb0517a,Babu Freaks,Babu Freaks.png,babu freaks
 600b59f0d51bdd11aea9caa5,Baguette Squadron,,baguette squadron
+606400127230f532c225f698,Bay Watch,,bay watch
 5ff4b6d2cfb32f1192b7ee33,Bold Squadron,,bold squadron
 5ff67da93679271deafb6903,Boushh Andor Kakow,,boushh andor kakow
 60088801744b0a6b0b499eee,Bread Bane Barrage Squadron,,bread bane barrage squadron
@@ -25,6 +26,7 @@ id,name,image,teamteamplate
 5ff4d8bcb8bc532a0b43c705,Error Squadron,,error squadron
 6049060c3c933041a7a3700b,Extreme Elite,,extreme elite
 5ff4ad5c8d443f7e3c62f77b,Firaxa Squadron,Firaxa_Squadron_logo.png,firaxa squadron
+606bd790dc51de7852bfe371,Fracture,,fracture
 5ff4c43dcfb32f1192b7eea7,Galactic Agriculture Squadron,,galactic agriculture squadron
 5ff5e2a34f8d38117e82559c,Gray Squadron Beskar,Gray Team Beskar.png,gray squadron beskar
 5ff6a121737cc91ece8437fd,Gray Squadron Eggplant,,gray squadron eggplant
@@ -35,7 +37,7 @@ id,name,image,teamteamplate
 6053a014699aa107918b7318,Gray Squadron Wild-Karrde,,gray squadron wild-karrde
 5ff627c97935c01e6ddba72b,Gray Squadron Wraith,,gray squadron wraith
 5ff4c9029ddc62118db7acf9,Gray Squadron chese,,gray squadron chese
-5ff615291548ce11847dd9bf,Guiltless Squadron,,guiltless squadron
+5ff615291548ce11847dd9bf,Guiltless Squadron,,guiltless squadron gs
 5ff4f151b8bc532a0b43c7a7,Harbinger Squadron,,harbinger squadron
 5ff61e709f77df119186fee4,Hawk Squadron,,hawk squadron
 5ff55ef05bdf2a1197cc45d0,Hex Squadron,Hex Squadron.png,hex squadron
@@ -73,9 +75,10 @@ id,name,image,teamteamplate
 6048d3595249ec41b0b55c2d,Storm Whistles,,storm whistles
 5ff57e1f3932db328e62a055,TAW,,taw
 5ffba940c1200a1190e6b335,TGW Squadron,,tgw squadron
-6008b0950a5b3c55c03b5209,TIE Fighter Alliance Crimson,,tie fighter alliance crimson
-604c167dada78048d937e461,TIE Fighter Alliance Crimson,,tie fighter alliance crimson
+6008b0950a5b3c55c03b5209,TIE Fighter Alliance Crimson,,tie fighter alliance royal guard crimson flight
+604c167dada78048d937e461,TIE Fighter Alliance Crimson,,tie fighter alliance royal guard crimson flight
 5ff8602620c23111fa322399,TIE Fighter Alliance Men in TIEghts,Men in TIEghts.png,tie fighter alliance men in tieghts
+606c41d9eea041235d6dccc5,Tangerine Squadron,,tangerine squadron
 600653fe5ee4244628ae7328,The Bad Batch,,the bad batch
 5ff4c0cdaafd0558a06841e9,The Buhh Boys,,the buhh boys
 600882300a5b3c55c03b5009,The Night Witches,,the night witches
@@ -88,3 +91,5 @@ id,name,image,teamteamplate
 5ff666e9fe19eb1e8de6755f,Typhoon Squadron,,typhoon squadron
 5ff5f6f13d53927863f41dd4,Vice Squadron,,vice squadron
 60087b495ee4244628ae7fcd,Yet Another Squadron,,yet another squadron
+606c2cb643507c17f0902d54,Zealot Squadron,,tie fighter alliance royal guard zealot
+60752a3b46fbe91815103f47,Zesty Squadron,,zesty squadron
