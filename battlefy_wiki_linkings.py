@@ -89,12 +89,15 @@ class BattlefyWikiTeamLinkings(object):
     def get_team_info(self, team_id, team_name):
         team_info = {
             'name': '',
-            'image': ''
+            'image': '',
+            'teamteamplate': ''
         }
         if team_id in self.team_wiki_info:
             team_info['name'] = self.team_wiki_info[team_id]['name']
             team_info['image'] = self.team_wiki_info[team_id]['image']
+            team_info['teamteamplate'] = self.team_wiki_info[team_id]['teamteamplate']
         else:
             team_info['name'] = self.sanitize_team_name(team_id, team_name)
+            team_info['teamteamplate'] = team_info['name'].lower()
             self.team_wiki_info[team_id] = team_info.copy()
         return team_info
