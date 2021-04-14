@@ -81,7 +81,7 @@ class BattlefyWikiTeamLinkings(object):
         team_name_fixed = team_name_fixed.replace('  ', ' ')
 
         with open(self.battlefy_wiki_teams, 'a+', newline='\n', encoding='utf-8') as bwt:
-            bwt.write(team_id + ',' + team_name_fixed + ',\n')
+            bwt.write(team_id + ',' + team_name_fixed + ',,' + team_name_fixed.lower() + '\n')
         sort_csv(self.battlefy_wiki_teams)
         print("Adding team to Team-Wiki list", team_name_fixed)
         return team_name_fixed
