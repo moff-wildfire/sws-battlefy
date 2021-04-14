@@ -6,6 +6,7 @@ import io
 
 equivalent_teams_list = list()
 equivalent_teams_list.append(["6037adda165e911e7771dc13", "5ff60103984b93119ee08efc"])  # Aces5 - Crimson Wings
+equivalent_teams_list.append(["606bd790dc51de7852bfe371","5ff606e51548ce11847dd936"])  # Krayt Science Team - Fracture
 equivalent_teams = set(team for same_teams in equivalent_teams_list for team in same_teams)
 
 equivalent_players_list = list()
@@ -19,11 +20,10 @@ eventid_to_missing_userid['6037ea4f3cc6e32afb733736'] = '60364e766e40911bb679b8f
 # TODO: Eventually may need to account for a team reset
 
 
-def create_event_team_player_lists(event):
+def create_event_team_player_lists(event, player_event_count):
     event_player_team = dict()
     event_player_name = dict()
     event_teams = dict()
-    player_event_count = dict()
 
     for team in event['data'].tournament_data['teams']:
         persistent_team_id = event['data'].tournament_data['teams'][team]['persistentTeamID']
@@ -53,13 +53,14 @@ def create_event_team_player_lists(event):
                 else:
                     print("Missing userID for:", player['inGameName'], 'on team',
                           event['data'].tournament_data['teams'][team]['name'])
-    return event_teams, event_player_team, event_player_name, event_teams
+    return event_teams, event_player_team, event_player_name, player_event_count
 
 def main():
 
     ccs_winter_minor_id = '5ff3354193edb53839d44d55'
     ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
+    ccs_spring_major_id = '6061b764f68d8733c8455fcf'
 
     event_list = list()
     event_list.append({
@@ -83,6 +84,14 @@ def main():
                         'qualify_stage': 0,
                         'qualify_number': 16,
                         'finalized': True,
+                        'top_teams': dict(),
+                        'new_players': 0
+                      })
+    event_list.append({
+                        'data': battlefy_data.BattlefyData(ccs_spring_major_id),
+                        'qualify_stage': 0,
+                        'qualify_number': 16,
+                        'finalized': False,
                         'top_teams': dict(),
                         'new_players': 0
                       })
@@ -110,7 +119,8 @@ def main():
         event_player_name = dict()
         event_teams = dict()
 
-        event_teams, event_player_team, event_player_name, event_teams = create_event_team_player_lists(event)
+        event_teams, event_player_team, event_player_name, player_event_count = \
+            create_event_team_player_lists(event, player_event_count)
 
         for top_team in top_teams:
             # Rename top team to match name used in current event
@@ -215,13 +225,13 @@ def main():
     #     f.write(teams)
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-    print("Participated in 1 event: ", str(sum(map((1).__eq__, player_event_count.values()))))
-    print("Participated in 2 events: ", str(sum(map((2).__eq__, player_event_count.values()))))
-    print("Participated in 3 events: ", str(sum(map((3).__eq__, player_event_count.values()))))
+    print("Rostered in 1 event: ", str(sum(map((1).__eq__, player_event_count.values()))))
+    print("Rostered in 2 events: ", str(sum(map((2).__eq__, player_event_count.values()))))
+    print("Rostered in 3 events: ", str(sum(map((3).__eq__, player_event_count.values()))))
+    print("Rostered in 4 events: ", str(sum(map((4).__eq__, player_event_count.values()))))
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     for event in event_list:
-        print(event['data'].tournament_data['name'], "had", str(event['new_players']), "new players")
-
+        print(event['data'].tournament_data['name'], "had", str(event['new_players']), "new rostered players")
 
 
 if __name__ == '__main__':
