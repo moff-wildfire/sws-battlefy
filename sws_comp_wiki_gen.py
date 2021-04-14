@@ -28,8 +28,11 @@ def create_sidebar(data, wiki_name):
     sidebar += '|patch=' + '\n'
     sidebar += '|sdate=' + datetime.strptime(data['checkInStartTime'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(
         '%Y/%m/%d') + '\n'
-    sidebar += '|edate=' + datetime.strptime(data['lastCompletedMatchAt'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(
-        '%Y/%m/%d') + '\n'
+    try:
+        sidebar += '|edate=' + datetime.strptime(data['lastCompletedMatchAt'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(
+            '%Y/%m/%d') + '\n'
+    except KeyError:
+        sidebar += '|edate=\n'
     sidebar += '|web=' + '\n'
     sidebar += '|bracket=https://battlefy.com/' + data['organization']['slug'] + '/' + data['slug'] + '/' \
                + data['_id'] + '/bracket-list' + '\n'
@@ -92,9 +95,13 @@ def create_participants(data, bw_players, bw_teams, dynamic=[]):
 
     teams = list()
     for team_id in data['teams']:
+        if 'place' in data['teams'][team_id]:
+            place = data['teams'][team_id]['place']
+        else:
+            place = 0
         teams.append((team_id,
                       data['teams'][team_id]['name'],
-                      data['teams'][team_id]['place'],
+                      place,
                       data['teams'][team_id]['persistentTeamID']))
     teams = sorted(teams, key=itemgetter(2, 1))
 
@@ -347,8 +354,12 @@ def create_prize_pool(prize):
 
 
 def main():
-    tournament_id = '5ff3354193edb53839d44d55'
-    wiki_name = 'Calrissian Cup/Winter/Minor'
+    ccs_winter_minor_id = '5ff3354193edb53839d44d55'
+    ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
+    ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
+    ccs_spring_major_id = '6061b764f68d8733c8455fcf'
+    tournament_id = ccs_spring_major_id
+    wiki_name = 'Calrissian Cup/Spring/Major'
     participant_tabs = [
         {'tab_name': 'Top 16',
          'count': 16},
