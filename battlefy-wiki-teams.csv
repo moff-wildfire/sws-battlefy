@@ -21,21 +21,21 @@ id,name,image,teamteamplate
 5ff60103984b93119ee08efc,Crimson Wings,,crimson wings
 5ff615d68d443f7e3c6305b8,Crimson Wings,,crimson wings
 6037adda165e911e7771dc13,Crimson Wings,,crimson wings
-5ff562eecc1f0b11b8c4c956,Crone Squadron,,crone squadron
+5ff562eecc1f0b11b8c4c956,Crone Squadron,Crone Squadron Logo.png,crone squadron
 5ff628d2bd3cd51eeee6b348,Da Nightfall Squadrone,,da nightfall squadrone
 5ff4d8bcb8bc532a0b43c705,Error Squadron,,error squadron
-6049060c3c933041a7a3700b,Extreme Elite,,extreme elite
+6049060c3c933041a7a3700b,Extreme Elite,Extreme_Elite_Logo.png,extreme elite
 5ff4ad5c8d443f7e3c62f77b,Firaxa Squadron,Firaxa_Squadron_logo.png,firaxa squadron
 606bd790dc51de7852bfe371,Fracture,,fracture
 5ff4c43dcfb32f1192b7eea7,Galactic Agriculture Squadron,,galactic agriculture squadron
 5ff5e2a34f8d38117e82559c,Gray Squadron Beskar,Gray Team Beskar.png,gray squadron beskar
 5ff6a121737cc91ece8437fd,Gray Squadron Eggplant,,gray squadron eggplant
 5ff4c1469f77df119186f4d5,Gray Squadron Guac,Gray Squadron Guac.png,gray squadron guac
-60214c8b8d0fda781fa4c0ba,Gray Squadron Hell Porgs,,gray squadron hell porgs
+60214c8b8d0fda781fa4c0ba,Gray Squadron Hell Porgs,Gray_Hell_Porgs_Logo.png,gray squadron hell porgs
 5ff60ae6ffbe666f1fae27c1,Gray Squadron Nova,,gray squadron nova
 5ff488f53932db328e629aa5,Gray Squadron Tempest,,gray squadron tempest
-6053a014699aa107918b7318,Gray Squadron Wild-Karrde,,gray squadron wild-karrde
-5ff627c97935c01e6ddba72b,Gray Squadron Wraith,,gray squadron wraith
+6053a014699aa107918b7318,Gray Squadron Wild-Karrde,Gray Squadron Wild-Karrde Logo.png,gray squadron wild-karrde
+5ff627c97935c01e6ddba72b,Gray Squadron Wraith,Gray Squadron Wraith Logo.png,gray squadron wraith
 5ff4c9029ddc62118db7acf9,Gray Squadron chese,,gray squadron chese
 5ff615291548ce11847dd9bf,Guiltless Squadron,,guiltless squadron gs
 5ff4f151b8bc532a0b43c7a7,Harbinger Squadron,,harbinger squadron
@@ -63,11 +63,11 @@ id,name,image,teamteamplate
 5ff63c6e6ecbf60a8d0f6cf9,Renegades,,renegades
 5ff4e4e6984b93119ee089de,Riot Squadron,,riot squadron
 5ff4a2505bdf2a1197cc415e,Rogue181st Squadron,,rogue181st squadron
-5ff4f25c9ddc62118db7ae37,RuffNeck Squadron,,ruffneck squadron
+5ff4f25c9ddc62118db7ae37,RuffNeck Squadron,Ruffneck Squadron Logo.png,ruffneck squadron
 5ff58f784f8d38117e825491,Rune Squadron,,rune squadron
-5ff669ff95ad3a0a9a1f627c,Savrip Squadron,,savrip squadron
+5ff669ff95ad3a0a9a1f627c,Savrip Squadron,Savrip Light.png,savrip squadron
 5ff4ec06cfb32f1192b7ef62,Shrapnel Squadron,,shrapnel squadron
-6008a9ebe5a00c465bb68b7c,Skull Squadron Death Watch,,skull squadron death watch
+6008a9ebe5a00c465bb68b7c,Skull Squadron Death Watch,Skull_Squadron_Death_Watch_Logo.png,skull squadron death watch
 5ff5f5599ddc62118db7b2e1,Skull Squadron Nite Owls,,skull squadron: nite owls
 5ff7a1978b70a211e40367a9,Spectre,,spectre
 60088a7c3138396b94fd70d2,Spicy Squadron,,spicy squadron
@@ -75,8 +75,8 @@ id,name,image,teamteamplate
 6048d3595249ec41b0b55c2d,Storm Whistles,,storm whistles
 5ff57e1f3932db328e62a055,TAW,,taw
 5ffba940c1200a1190e6b335,TGW Squadron,,tgw squadron
-6008b0950a5b3c55c03b5209,TIE Fighter Alliance Crimson,,tie fighter alliance royal guard crimson flight
-604c167dada78048d937e461,TIE Fighter Alliance Crimson,,tie fighter alliance royal guard crimson flight
+6008b0950a5b3c55c03b5209,TIE Fighter Alliance Crimson,TFACrimson.png,tie fighter alliance royal guard crimson flight
+604c167dada78048d937e461,TIE Fighter Alliance Crimson,TFACrimson.png,tie fighter alliance royal guard crimson flight
 5ff8602620c23111fa322399,TIE Fighter Alliance Men in TIEghts,Men in TIEghts.png,tie fighter alliance men in tieghts
 606c41d9eea041235d6dccc5,Tangerine Squadron,,tangerine squadron
 600653fe5ee4244628ae7328,The Bad Batch,,the bad batch
@@ -84,9 +84,9 @@ id,name,image,teamteamplate
 600882300a5b3c55c03b5009,The Night Witches,,the night witches
 5ff479a5b8bc532a0b43c473,The Randolorians,,the randolorians
 5ffba81a585b360a7e9d0cbe,The War Porgs,,the war porgs
-5ffbac8b8b383a1e5798cb30,Tie Fighter Alliance Royal Guard Shadow Flight,TFA Shadow.png,tie fighter alliance royal guard shadow flight
-6008a0c0e5a00c465bb68b01,Tie Fighter Alliance Vader's Wrist,Vader's Wrist.png,tie fighter alliance vader's wrist
-6008a960a299156a63c88d3c,Troublemaker Squadron,,troublemaker squadron
+5ffbac8b8b383a1e5798cb30,TIE Fighter Alliance Royal Guard Shadow Flight,TFA Shadow.png,tie fighter alliance royal guard shadow flight
+6008a0c0e5a00c465bb68b01,TIE Fighter Alliance Vader's Wrist,Vader's Wrist.png,tie fighter alliance vader's wrist
+6008a960a299156a63c88d3c,Troublemaker Squadron,Troublemaker Squadron Logo.png,troublemaker squadron
 5ff93312afb13c11faafd549,Twin Suns Squadron,,twin suns squadron
 5ff666e9fe19eb1e8de6755f,Typhoon Squadron,,typhoon squadron
 5ff5f6f13d53927863f41dd4,Vice Squadron,,vice squadron
