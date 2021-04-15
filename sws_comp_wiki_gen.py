@@ -311,7 +311,7 @@ def create_round_robin_tables(stage, teams, bw_teams):
     tables = ''
     for group in stage['groups']:
         tables += '===={{HiddenSort|Group ' + group['name'] + '}}====\n'
-        tables += '{{GroupTableLeague|title=Group' + group['name'] + '|width=450px|show_p=false\n'
+        tables += '{{GroupTableLeague|title=Group ' + group['name'] + '|width=450px|show_p=false\n'
         group_header = ''
         group_table = ''
         for pos, standing_id in enumerate(group['standingIDs']):
@@ -320,15 +320,19 @@ def create_round_robin_tables(stage, teams, bw_teams):
                 if standing_id == standing['_id']:
                     # if standing['disqualified']:
                     #     has_drop = True
+
+                    team_info = bw_teams.get_team_info(teams[standing['team']['_id']]['persistentTeamID'],
+                                                       teams[standing['team']['_id']]['name'])
+
                     group_table += '|bg' + str(pos + 1) + '=down|team' + str(pos + 1) + "=" \
-                                   + standing['team']['name'] + '\n'
+                                   + team_info['teamteamplate'] + '\n'
 
         group_header += '|tiebreaker1=series\n'
         tables += group_header
         tables += group_table
         tables += "}}\n"
 
-        match_table = '{{MatchListStart|title=Group' + group['name'] + ' Matches|width=450px|hide=true}}\n'
+        match_table = '{{MatchListStart|title=Group ' + group['name'] + ' Matches|width=450px|hide=true}}\n'
 
         for match in group['matches']:
             match_line = create_match_maps(match, teams, bw_teams)
@@ -364,8 +368,8 @@ def main():
     ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
-    tournament_id = ccs_spring_minor_id
-    wiki_name = 'Calrissian Cup/Spring/Minor'
+    tournament_id = ccs_winter_minor_id
+    wiki_name = 'Calrissian Cup/Winter/Minor'
     participant_tabs = [
         {'tab_name': 'Top 16',
          'count': 16},
