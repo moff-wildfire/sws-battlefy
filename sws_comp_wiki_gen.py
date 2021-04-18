@@ -79,7 +79,7 @@ def create_event_format(data):
     return event_format
 
 
-def create_participants(data, bw_players, bw_teams, dynamic=[]):
+def create_participants(data, bw_players, bw_teams, dynamic=[], sort_place=True):
     header = '{{TeamCardToggleButton}}\n'
 
     teams_ordered = ''
@@ -99,11 +99,17 @@ def create_participants(data, bw_players, bw_teams, dynamic=[]):
             place = data['teams'][team_id]['place']
         else:
             place = 0
+        team_info = bw_teams.get_team_info(data['teams'][team_id]['persistentTeamID'], data['teams'][team_id]['name'])
         teams.append((team_id,
                       data['teams'][team_id]['name'],
                       place,
-                      data['teams'][team_id]['persistentTeamID']))
-    teams = sorted(teams, key=itemgetter(2, 1))
+                      data['teams'][team_id]['persistentTeamID'],
+                      team_info['name']
+                      ))
+    if sort_place:
+        teams = sorted(teams, key=itemgetter(2, 4, 0))
+    else:
+        teams = sorted(teams, key=itemgetter(4, 0))
 
     dynamic_idx = 0
     if dynamic:
@@ -307,7 +313,7 @@ def create_match_maps(match, teams, bw_teams):
     return match_line
 
 
-def create_round_robin_tables(stage, teams, bw_teams):
+def create_round_robin_tables(stage, teams, bw_teams, include_matches=True):
     tables = ''
     for group in stage['groups']:
         tables += '===={{HiddenSort|Group ' + group['name'] + '}}====\n'
@@ -332,13 +338,14 @@ def create_round_robin_tables(stage, teams, bw_teams):
         tables += group_table
         tables += "}}\n"
 
-        match_table = '{{MatchListStart|title=Group ' + group['name'] + ' Matches|width=450px|hide=true}}\n'
+        if include_matches:
+            match_table = '{{MatchListStart|title=Group ' + group['name'] + ' Matches|width=450px|hide=true}}\n'
 
-        for match in group['matches']:
-            match_line = create_match_maps(match, teams, bw_teams)
-            match_table += match_line
-        tables += match_table
-        tables += '{{MatchListEnd}}\n'
+            for match in group['matches']:
+                match_line = create_match_maps(match, teams, bw_teams)
+                match_table += match_line
+            tables += match_table
+            tables += '{{MatchListEnd}}\n'
         tables += '{{box|break|padding=2em}}\n'
 
     return tables
@@ -368,13 +375,13 @@ def main():
     ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
-    tournament_id = ccs_winter_minor_id
-    wiki_name = 'Calrissian Cup/Winter/Minor'
+    tournament_id = ccs_spring_major_id
+    wiki_name = 'Calrissian Cup/Spring/Major'
     participant_tabs = [
         {'tab_name': 'Top 16',
          'count': 16},
-        {'tab_name': 'Top 32',
-         'count': 32},
+        # {'tab_name': 'Top 32',
+        #  'count': 32},
         {'tab_name': 'Other Notable Participants',
          'count': -1},
     ]
@@ -404,7 +411,7 @@ def main():
         f.write(prize_pool)
         f.write('==Participants==\n')
         teams = create_participants(event_data.tournament_data, bw_players, bw_teams,
-                                    dynamic=participant_tabs)
+                                    dynamic=participant_tabs, sort_place=True)
         f.write(teams)
 
         f.write('==Results==\n')
@@ -423,7 +430,8 @@ def main():
                 f.write(bracket)
             elif stage['bracket']['type'] == 'roundrobin':
                 f.write('===' + stage['name'] + '===\n')
-                round_robin_tables = create_round_robin_tables(stage, event_data.tournament_data['teams'], bw_teams)
+                round_robin_tables = create_round_robin_tables(stage, event_data.tournament_data['teams'], bw_teams,
+                                                               include_matches=True)
                 f.write(round_robin_tables)
             else:
                 print('Unsupported bracket type of: ' + stage['bracket']['type'])
