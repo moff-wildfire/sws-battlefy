@@ -13,7 +13,10 @@ def create_team_list(data):
 
     for team in teams:
         team_row = team[1]
-        team_row += ', ' + data['teams'][team[0]]['countryFlag']
+        if 'countryFlag' in data['teams'][team[0]]:
+            team_row += ', ' + data['teams'][team[0]]['countryFlag']
+        else:
+            team_row += ', '
 
         if data['teams'][team[0]]['persistentTeam']['logoUrl']:
             team_row += ', True'
