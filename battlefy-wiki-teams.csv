@@ -26,7 +26,7 @@ id,name,image,teamteamplate
 5ff4d8bcb8bc532a0b43c705,Error Squadron,Error Squadron Logo.png,error squadron
 6049060c3c933041a7a3700b,Extreme Elite,Extreme_Elite_Logo.png,extreme elite
 5ff4ad5c8d443f7e3c62f77b,Firaxa Squadron,Firaxa_Squadron_logo.png,firaxa squadron
-606bd790dc51de7852bfe371,Fracture,,fracture
+606bd790dc51de7852bfe371,Fracture,Fracture Logo.png,fracture
 5ff4c43dcfb32f1192b7eea7,Galactic Agriculture Squadron,,galactic agriculture squadron
 5ff5e2a34f8d38117e82559c,Gray Squadron Beskar,Gray Team Beskar.png,gray squadron beskar
 5ff6a121737cc91ece8437fd,Gray Squadron Eggplant,,gray squadron eggplant
@@ -41,8 +41,9 @@ id,name,image,teamteamplate
 5ff4f151b8bc532a0b43c7a7,Harbinger Squadron,,harbinger squadron
 5ff61e709f77df119186fee4,Hawk Squadron,,hawk squadron
 5ff55ef05bdf2a1197cc45d0,Hex Squadron,Hex Squadron.png,hex squadron
-5ff47e63d749de11a024d20a,Hutt Cartel,,hutt cartel
-600882375ee4244628ae8007,Hutt Cartel,,hutt cartel
+5ff47e63d749de11a024d20a,Hutt Cartel,Hutt Cartel Light Logo.png,hutt cartel
+600882375ee4244628ae8007,Hutt Cartel,Hutt Cartel Light Logo.png,hutt cartel
+607606b2521bb713377dec69,Hutt Peach Cartel,,hutt peach cartel
 5ff6213fba1b0c11a8f62b3c,IN Death Squadron,,in death squadron
 5ff62fc5c184ed1e77d3ed3a,Imperial Guard,Imperial Guard.png,imperial guard
 6054e5031b9c6f0a1cc69898,Jabba's Jawas,,jabba's jawas
@@ -54,7 +55,7 @@ id,name,image,teamteamplate
 603832e3ba62671bc0b8ac00,Marmoset Squadron,Marmoset-squadron.png,marmoset squadron
 600880a721dcf746cc8d4a0f,Moar Renegades,,moar renegades
 5ffbb00d7315631e666a7e4a,NPC DRAGÓN SQUADRON,NPC_E-Sports_logo.png,npc dragón squadron
-5ff48e8ffba0401180fcda47,Orange Squadron,,orange squadron
+5ff48e8ffba0401180fcda47,Orange Squadron,Orange Squadron Logo.png,orange squadron
 5ff7fd2ab0f6601ed628584a,Outer Rim Legionnaires,,outer rim legionnaires
 5ff4c709ba1b0c11a8f62039,Rancor Squadron,RancorSquadron.png,rancor squadron
 6008a2265eb5c6460b143f13,Rancor Squadron,RancorSquadron.png,rancor squadron
@@ -62,13 +63,14 @@ id,name,image,teamteamplate
 5ff49bed63cc041186bbd3d9,Remnant Squadron,Remnant Squadron.png,remnant squadron
 5ff63c6e6ecbf60a8d0f6cf9,Renegades,,renegades
 5ff4e4e6984b93119ee089de,Riot Squadron,,riot squadron
+6078e0ebd1a51b11c6741b40,Riot Squadron Hound,,riot squadron hound
 5ff4a2505bdf2a1197cc415e,Rogue181st Squadron,,rogue181st squadron
 5ff4f25c9ddc62118db7ae37,RuffNeck Squadron,Ruffneck Squadron Logo.png,ruffneck squadron
 5ff58f784f8d38117e825491,Rune Squadron,,rune squadron
 5ff669ff95ad3a0a9a1f627c,Savrip Squadron,Savrip Light.png,savrip squadron
-5ff4ec06cfb32f1192b7ef62,Shrapnel Squadron,,shrapnel squadron
+5ff4ec06cfb32f1192b7ef62,Shrapnel Squadron,Shrapnel Squadron Logo.png,shrapnel squadron
 6008a9ebe5a00c465bb68b7c,Skull Squadron Death Watch,Skull_Squadron_Death_Watch_Logo.png,skull squadron death watch
-5ff5f5599ddc62118db7b2e1,Skull Squadron Nite Owls,,skull squadron: nite owls
+5ff5f5599ddc62118db7b2e1,Skull Squadron Nite Owls,Skull Squadron Nite Owls Logo.png,skull squadron: nite owls
 5ff7a1978b70a211e40367a9,Spectre,,spectre
 60088a7c3138396b94fd70d2,Spicy Squadron,,spicy squadron
 5ff4a6ee4f8d38117e825010,Splinter Gaming,Splinter Gaming.png,splinter gaming
@@ -79,7 +81,7 @@ id,name,image,teamteamplate
 5ff8602620c23111fa322399,TIE Fighter Alliance Men in TIEghts,Men in TIEghts.png,tie fighter alliance men in tieghts
 5ffbac8b8b383a1e5798cb30,TIE Fighter Alliance Royal Guard Shadow Flight,TFA Shadow.png,tie fighter alliance royal guard shadow flight
 6008a0c0e5a00c465bb68b01,TIE Fighter Alliance Vader's Wrist,Vader's Wrist.png,tie fighter alliance vader's wrist
-606c41d9eea041235d6dccc5,Tangerine Squadron,,tangerine squadron
+606c41d9eea041235d6dccc5,Tangerine Squadron,Tangerine Squadron Logo.png,tangerine squadron
 5ff57e1f3932db328e62a055,The Art of Warfare,,the art of warfare
 600653fe5ee4244628ae7328,The Bad Batch,,the bad batch
 5ff4c0cdaafd0558a06841e9,The Buhh Boys,,the buhh boys
