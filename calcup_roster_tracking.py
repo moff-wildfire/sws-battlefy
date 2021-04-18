@@ -6,7 +6,7 @@ import io
 
 equivalent_teams_list = list()
 equivalent_teams_list.append(["6037adda165e911e7771dc13", "5ff60103984b93119ee08efc"])  # Aces5 - Crimson Wings
-equivalent_teams_list.append(["606bd790dc51de7852bfe371","5ff606e51548ce11847dd936"])  # Krayt Science Team - Fracture
+equivalent_teams_list.append(["606bd790dc51de7852bfe371", "5ff606e51548ce11847dd936"])  # Krayt Science Team - Fracture
 equivalent_teams = set(team for same_teams in equivalent_teams_list for team in same_teams)
 
 equivalent_players_list = list()
@@ -91,7 +91,7 @@ def main():
                         'data': battlefy_data.BattlefyData(ccs_spring_major_id),
                         'qualify_stage': 0,
                         'qualify_number': 16,
-                        'finalized': False,
+                        'finalized': True,
                         'top_teams': dict(),
                         'new_players': 0
                       })
@@ -123,11 +123,17 @@ def main():
             create_event_team_player_lists(event, player_event_count)
 
         for top_team in top_teams:
+            old_team_name = top_teams[top_team]['name']
             # Rename top team to match name used in current event
             if top_team in event_teams:
                 top_teams[top_team]['name'] = event_teams[top_team]['name']
 
             print("************************", top_teams[top_team]['name'], "************************")
+
+            if old_team_name != top_teams[top_team]['name']:
+                print("Team changed name from",
+                      old_team_name, "to",
+                      top_teams[top_team]['name'])
 
             persistent_team_id = top_teams[top_team]['persistentTeamID']
             if persistent_team_id in equivalent_teams:
