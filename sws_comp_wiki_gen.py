@@ -247,7 +247,7 @@ def create_elim_bracket(stage, teams, bw_teams):
                                                teams[match['top']['teamID']]['name'])['teamteamplate']
             bracket += bracket_indicator + 'team=' + team_name + ' '
         else:
-            bracket += bracket_indicator + '=BYE '
+            bracket += bracket_indicator + 'literal=BYE '
         if 'score' in match['top']:
             bracket += bracket_indicator + 'score=' + str(match['top']['score']) + ' '
         if 'winner' in match['top'] and match['top']['winner']:
@@ -264,7 +264,7 @@ def create_elim_bracket(stage, teams, bw_teams):
                                                teams[match['bottom']['teamID']]['name'])['teamteamplate']
             bracket += bracket_indicator + 'team=' + team_name + ' '
         else:
-            bracket += bracket_indicator + '=BYE '
+            bracket += bracket_indicator + 'literal=BYE '
         if 'score' in match['bottom']:
             bracket += bracket_indicator + 'score=' + str(match['bottom']['score']) + ' '
         if 'winner' in match['bottom'] and match['bottom']['winner']:
@@ -313,11 +313,12 @@ def create_match_maps(match, teams, bw_teams):
     return match_line
 
 
-def create_round_robin_tables(stage, teams, bw_teams, include_matches=True):
+def create_round_robin_tables(stage, teams, bw_teams, wiki_name, include_matches=True):
     tables = ''
     for group in stage['groups']:
         tables += '===={{HiddenSort|Group ' + group['name'] + '}}====\n'
-        tables += '{{GroupTableLeague|title=Group ' + group['name'] + '|width=450px|show_p=false\n'
+        tables += '{{GroupTableLeague|title=Group ' + group['name'] + '|width=450px|show_p=false|date=|ties=true\n'
+        tables += '|tournament=' + wiki_name + '\n'
         group_header = ''
         group_table = ''
         for pos, standing_id in enumerate(group['standingIDs']):
@@ -378,8 +379,8 @@ def main():
     tournament_id = ccs_spring_major_id
     wiki_name = 'Calrissian Cup/Spring/Major'
     participant_tabs = [
-        {'tab_name': 'Top 16',
-         'count': 16},
+        {'tab_name': 'Top 12',
+         'count': 12},
         # {'tab_name': 'Top 32',
         #  'count': 32},
         {'tab_name': 'Other Notable Participants',
@@ -431,7 +432,7 @@ def main():
             elif stage['bracket']['type'] == 'roundrobin':
                 f.write('===' + stage['name'] + '===\n')
                 round_robin_tables = create_round_robin_tables(stage, event_data.tournament_data['teams'], bw_teams,
-                                                               include_matches=True)
+                                                               wiki_name, include_matches=True)
                 f.write(round_robin_tables)
             else:
                 print('Unsupported bracket type of: ' + stage['bracket']['type'])
