@@ -161,11 +161,11 @@ def create_participants(data, bw_players, bw_teams, dynamic=[], sort_place=True)
 
 
 def create_swiss_table(stage, bw_teams):
-    dropped_style = 'down'
+    dropped_style = 'drop'
 
     swiss_table = '{{SwissTableLeague|rounds=' + str(stage['bracket']['roundsCount']) + '|diff=false\n'
     for i in range(stage['bracket']['teamsCount']):
-        swiss_table += '|pbg' + str(i + 1) + '='
+        swiss_table += '|pbg' + str(i + 1) + '=down'
         if (i + 1) % 8 == 0:
             swiss_table += '\n'
     if '\n' not in swiss_table[-1]:
@@ -175,9 +175,10 @@ def create_swiss_table(stage, bw_teams):
         if record['disqualified']:
             swiss_table += '|bg' + str(rank + 1) + '=' + dropped_style + ''
         else:
-            swiss_table += '|bg' + str(rank + 1) + '='
+            swiss_table += '|bg' + str(rank + 1) + '=down'
         team_info = bw_teams.get_team_info(record['team']['persistentTeamID'], record['team']['name'])
-        swiss_table += '|team' + str(rank + 1) + '=' + team_info['teamteamplate'] + '\n'
+        swiss_table += '|team' + str(rank + 1) + '=' + team_info['teamteamplate']
+        swiss_table += '|temp_tie' + str(rank+1) + '=' + "{:7.3f}".format(record['opponentsMatchWinPercentage']) + '\n'
 
     swiss_table += '}}\n'
 
@@ -376,13 +377,13 @@ def main():
     ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
-    tournament_id = ccs_spring_major_id
-    wiki_name = 'Calrissian Cup/Spring/Major'
+    tournament_id = ccs_winter_minor_id
+    wiki_name = 'Calrissian Cup/Winter/Minor'
     participant_tabs = [
-        {'tab_name': 'Top 12',
-         'count': 12},
-        # {'tab_name': 'Top 32',
-        #  'count': 32},
+        {'tab_name': 'Top 16',
+         'count': 16},
+        {'tab_name': 'Top 32',
+         'count': 32},
         {'tab_name': 'Other Notable Participants',
          'count': -1},
     ]
