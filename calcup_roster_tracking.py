@@ -10,6 +10,7 @@ equivalent_teams_list.append(["606bd790dc51de7852bfe371", "5ff606e51548ce11847dd
 equivalent_teams = set(team for same_teams in equivalent_teams_list for team in same_teams)
 
 equivalent_players_list = list()
+equivalent_players_list.append(["608491177230f532c226fb98", "5ff4cc55cfb32f1192b7eed3"])  # DazuTheDevastator
 equivalent_players = set(player for same_players in equivalent_players_list for player in same_players)
 
 eventid_to_missing_userid = dict()
@@ -34,6 +35,7 @@ def create_event_team_player_lists(event, player_event_count):
         event_teams[persistent_team_id] = event['data'].tournament_data['teams'][team]
 
         for player in event['data'].tournament_data['teams'][team]['players']:
+            event['total_players'] += 1
             if 'userID' in player:
                 event_player_team[player['userID']] = persistent_team_id
                 event_player_name[player['userID']] = player['inGameName']
@@ -61,6 +63,7 @@ def main():
     ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
+    twin_suns_tourny_id = '60806876938bed74f6edea9e'
 
     event_list = list()
     event_list.append({
@@ -69,7 +72,8 @@ def main():
                         'qualify_number': 16,
                         'finalized': True,
                         'top_teams': dict(),
-                        'new_players': 0
+                        'new_players': 0,
+                        'total_players': 0
                       })
     event_list.append({
                         'data': battlefy_data.BattlefyData(ccs_winter_major_id),
@@ -77,7 +81,8 @@ def main():
                         'qualify_number': 16,
                         'finalized': True,
                         'top_teams': dict(),
-                        'new_players': 0
+                        'new_players': 0,
+                        'total_players': 0
                       })
     event_list.append({
                         'data': battlefy_data.BattlefyData(ccs_spring_minor_id),
@@ -85,7 +90,8 @@ def main():
                         'qualify_number': 16,
                         'finalized': True,
                         'top_teams': dict(),
-                        'new_players': 0
+                        'new_players': 0,
+                        'total_players': 0
                       })
     event_list.append({
                         'data': battlefy_data.BattlefyData(ccs_spring_major_id),
@@ -93,7 +99,17 @@ def main():
                         'qualify_number': 16,
                         'finalized': True,
                         'top_teams': dict(),
-                        'new_players': 0
+                        'new_players': 0,
+                        'total_players': 0
+                      })
+    event_list.append({
+                        'data': battlefy_data.BattlefyData(twin_suns_tourny_id),
+                        'qualify_stage': 0,
+                        'qualify_number': 16,
+                        'finalized': False,
+                        'top_teams': dict(),
+                        'new_players': 0,
+                        'total_players': 0
                       })
 
     player_event_count = dict()
@@ -235,9 +251,12 @@ def main():
     print("Rostered in 2 events: ", str(sum(map((2).__eq__, player_event_count.values()))))
     print("Rostered in 3 events: ", str(sum(map((3).__eq__, player_event_count.values()))))
     print("Rostered in 4 events: ", str(sum(map((4).__eq__, player_event_count.values()))))
+    print("Rostered in 5 events: ", str(sum(map((5).__eq__, player_event_count.values()))))
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     for event in event_list:
-        print(event['data'].tournament_data['name'], "had", str(event['new_players']), "new rostered players")
+        print(event['data'].tournament_data['name'], "had", str(event['total_players']), "players on",
+              str(len(event['data'].tournament_data['teams'])), "teams with", str(event['new_players']),
+              "new rostered players")
 
 
 if __name__ == '__main__':
