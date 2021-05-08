@@ -60,7 +60,10 @@ def main():
 
     ccs_winter_minor_id = '5ff3354193edb53839d44d55'
     ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
-    tournament_id = ccs_winter_major_id
+    ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
+    ccs_spring_major_id = '6061b764f68d8733c8455fcf'
+    twin_suns_tourny_id = '60806876938bed74f6edea9e'
+    tournament_id = twin_suns_tourny_id
     event_data = battlefy_data. BattlefyData(tournament_id)
     event_data.load_tournament_data()
 
@@ -68,16 +71,16 @@ def main():
     event_data.dl_tournament_data(reduce_teams=False)
 
     # Create Team/Player CSV
-    # event_path = event_data.get_tournament_data_path()
-    # event_path.mkdir(parents=True, exist_ok=True)
-    # filename = Path.joinpath(event_path, event_data.tournament_data['name'] + '_teams-players.csv')
-    #
-    # with open(filename, 'w+', newline='\n') as f:
-    #     teams = create_team_list(event_data.tournament_data)
-    #     f.write(teams)
-    #
-    # event_data.dl_team_logos()
+    event_path = event_data.get_tournament_data_path()
+    event_path.mkdir(parents=True, exist_ok=True)
+    filename = Path.joinpath(event_path, event_data.tournament_data['name'] + '_teams-players.csv')
 
+    with open(filename, 'w+', newline='\n') as f:
+        teams = create_team_list(event_data.tournament_data)
+        f.write(teams)
+
+    event_data.dl_team_logos()
+    #
     event_data.dl_screen_shots()
 
 
