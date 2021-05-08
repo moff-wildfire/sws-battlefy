@@ -283,6 +283,8 @@ def create_match_maps(match, teams, bw_teams):
     match_line = ''
     if match['isBye']:
         return match_line
+    if not match['isComplete']:
+        return match_line
 
     match_line = '{{MatchMaps\n'
     match_line += '|date=\n'
@@ -377,8 +379,9 @@ def main():
     ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
-    tournament_id = ccs_winter_minor_id
-    wiki_name = 'Calrissian Cup/Winter/Minor'
+    twin_suns_tourny_id = '60806876938bed74f6edea9e'
+    tournament_id = twin_suns_tourny_id
+    wiki_name = 'Twin Suns Tournament'
     participant_tabs = [
         {'tab_name': 'Top 16',
          'count': 16},
@@ -399,7 +402,7 @@ def main():
     filename = Path.joinpath(event_path, event_data.tournament_data['name'] + '.wiki')
 
     with open(filename, 'w+', newline='\n', encoding='utf-8') as f:
-        display = '{{DISPLAYTITLE:' + event_data.tournament_data['name'] + '}}'
+        display = '{{DISPLAYTITLE:' + event_data.tournament_data['name'] + '}}\n'
         f.write(display)
         sidebar = create_sidebar(event_data.tournament_data, wiki_name)
         f.write(sidebar)
