@@ -17,6 +17,7 @@ eventid_to_missing_userid = dict()
 eventid_to_missing_userid['6037ea4fba62671bc0b8a8d9'] = '5ff4b461ffbe666f1fae1ef6'  # DarkKrieg
 eventid_to_missing_userid['60380d621f0f9f1d35aa344b'] = '600311d0d9155d46db7f4b02'  # loserkid
 eventid_to_missing_userid['6037ea4f3cc6e32afb733736'] = '60364e766e40911bb679b8ff'  # Alaric Kerensky
+eventid_to_missing_userid['60960d10cf99e72a16a99f8b'] = '60956670938bed74f6ee7e6d' # fr0Zen
 
 # TODO: Eventually may need to account for a team reset
 
