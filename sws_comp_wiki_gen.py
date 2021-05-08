@@ -27,10 +27,10 @@ def create_sidebar(data, wiki_name):
     sidebar += '|format=' + '\n'
     sidebar += '|patch=' + '\n'
     sidebar += '|sdate=' + datetime.strptime(data['checkInStartTime'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(
-        '%Y/%m/%d') + '\n'
+        '%Y-%m-%d') + '\n'
     try:
         sidebar += '|edate=' + datetime.strptime(data['lastCompletedMatchAt'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(
-            '%Y/%m/%d') + '\n'
+            '%Y-%m-%d') + '\n'
     except KeyError:
         sidebar += '|edate=\n'
     sidebar += '|web=' + '\n'
