@@ -17,7 +17,7 @@ eventid_to_missing_userid = dict()
 eventid_to_missing_userid['6037ea4fba62671bc0b8a8d9'] = '5ff4b461ffbe666f1fae1ef6'  # DarkKrieg
 eventid_to_missing_userid['60380d621f0f9f1d35aa344b'] = '600311d0d9155d46db7f4b02'  # loserkid
 eventid_to_missing_userid['6037ea4f3cc6e32afb733736'] = '60364e766e40911bb679b8ff'  # Alaric Kerensky
-eventid_to_missing_userid['60960d10cf99e72a16a99f8b'] = '60956670938bed74f6ee7e6d' # fr0Zen
+eventid_to_missing_userid['60960d10cf99e72a16a99f8b'] = '60956670938bed74f6ee7e6d'  # fr0Zen
 
 # TODO: Eventually may need to account for a team reset
 
@@ -107,7 +107,7 @@ def main():
                         'data': battlefy_data.BattlefyData(twin_suns_tourny_id),
                         'qualify_stage': 0,
                         'qualify_number': 16,
-                        'finalized': False,
+                        'finalized': True,
                         'top_teams': dict(),
                         'new_players': 0,
                         'total_players': 0
@@ -248,11 +248,11 @@ def main():
     #     f.write(teams)
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-    print("Rostered in 1 event: ", str(sum(map((1).__eq__, player_event_count.values()))))
-    print("Rostered in 2 events: ", str(sum(map((2).__eq__, player_event_count.values()))))
-    print("Rostered in 3 events: ", str(sum(map((3).__eq__, player_event_count.values()))))
-    print("Rostered in 4 events: ", str(sum(map((4).__eq__, player_event_count.values()))))
-    print("Rostered in 5 events: ", str(sum(map((5).__eq__, player_event_count.values()))))
+    print("Players rostered in 1  event: ", str(sum(map((1).__eq__, player_event_count.values()))))
+    print("Players rostered in 2 events: ", str(sum(map((2).__eq__, player_event_count.values()))))
+    print("Players rostered in 3 events: ", str(sum(map((3).__eq__, player_event_count.values()))))
+    print("Players rostered in 4 events: ", str(sum(map((4).__eq__, player_event_count.values()))))
+    print("Players rostered in 5 events: ", str(sum(map((5).__eq__, player_event_count.values()))))
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     for event in event_list:
         print(event['data'].tournament_data['name'], "had", str(event['total_players']), "players on",
