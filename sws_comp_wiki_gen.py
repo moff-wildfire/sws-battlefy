@@ -88,8 +88,11 @@ def create_participants(data, bw_players, bw_teams, dynamic=[], sort_place=True)
     for stage in data['stages']:
         for place, standing in enumerate(stage['standings']):
             if 'place' in standing:
-                data['teams'][standing['team']['_id']]['place'] = \
-                    standing['place'] + (1 - 1 / data['teams'][standing['team']['_id']]['place'])
+                if 'place' not in data['teams'][standing['team']['_id']]:
+                    data['teams'][standing['team']['_id']]['place'] = len(stage['standings']) + place
+                else:
+                    data['teams'][standing['team']['_id']]['place'] = \
+                        standing['place'] + (1 - 1 / data['teams'][standing['team']['_id']]['place'])
             else:
                 data['teams'][standing['team']['_id']]['place'] = len(stage['standings']) + place
 
