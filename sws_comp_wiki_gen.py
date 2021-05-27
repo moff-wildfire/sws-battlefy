@@ -208,7 +208,7 @@ def create_swiss_matches(matches, teams, bw_teams):
         else:
             swiss_match_table += '{{box|break|padding=2em}}\n'
         swiss_match_table += '====={{HiddenSort|Round ' + str(i) + '}}=====\n'
-        swiss_match_table += '{{MatchListStart|width=400px|title=Round ' + str(i) + ' Matches|matchsection=Round ' \
+        swiss_match_table += '{{MatchListStart|width=450px|title=Round ' + str(i) + ' Matches|matchsection=Round ' \
                              + str(i) + '|hide=false}}\n'
         for match in rounds[str(i)]:
             swiss_match_table += match
@@ -220,9 +220,9 @@ def create_swiss_matches(matches, teams, bw_teams):
 
 def create_elim_bracket(stage, teams, bw_teams):
     if stage['bracket']['style'] == 'single':
-        bracket = '{{' + str(len(stage['standings'])) + 'SETeamBracket\n'
+        bracket = '{{' + str(stage['bracket']['teamsCount']) + 'SETeamBracket\n'
     elif stage['bracket']['style'] == 'double':
-        bracket = '{{' + str(len(stage['standings'])) + 'DETeamBracket\n'
+        bracket = '{{' + str(stage['bracket']['teamsCount']) + 'DETeamBracket\n'
     else:
         print('Unknown stage style: ' + stage['bracket']['style'])
         return
@@ -230,21 +230,58 @@ def create_elim_bracket(stage, teams, bw_teams):
     # todo handle double elimination brackets
 
     # set up team number trackers
-    round_team_number = [1] * stage['bracket']['roundsCount']
+    team_previous_round = dict()
 
-    matches = sorted(stage['matches'], key=itemgetter('matchNumber'))
+    # set up round-match count trackers
+    round_max_win_match_count = [1] * len(stage['bracket']['series'])
+    round_max_win_match_count[0] = 0
+    round_max_loss_match_count = [1] * len(stage['bracket']['series'])
+    round_max_loss_match_count[0] = 0
+
+    # matches = sorted(stage['matches'], key=itemgetter('matchNumber'))
+    matches = stage['matches']
 
     for match in matches:
         # TODO: this will need to get updated for non SE16 templates
-        if match['matchType'] == 'loser':
-            bracket_type = 'D'
-        elif match['roundNumber'] == 1 and stage['bracket']['style'] == 'single' and match['matchType'] == 'winner':
-            bracket_type = 'D'
+        # In DE brackets D means the team dropped down from the previous round
+        # In DE brackest W means the team won the previous round
+        # So there are rounds where D vs L happen such as R2D1 vs R2W5 and R2D2 vs R2W6
+        # Might want to key off match['inConsolationBracket']
+        # May also just need to keep track of match['next'] and build up the D and W that way instead
+        # Default first round to D and then future bracket type is defined by match['next']
+        # Not exactly sure how to address round_team_number, in a 8 team DE the third winners bracket round is
+        #   called the 4th round and in a 16 team DE the 4th winners bracket round is called the 6th round
+        #   https://liquipedia.net/rainbowsix/Template:4DETeamBracket/doc
+        #   https://liquipedia.net/rainbowsix/Template:8DETeamBracket/doc
+        #   https://liquipedia.net/rainbowsix/Template:16DETeamBracket/doc
+
+        if match['matchType'] == 'winner':
+            round_max_win_match_count[match['roundNumber']] = max(match['matchNumber'],
+                                                                  round_max_win_match_count[match['roundNumber']])
+        elif match['matchType'] == 'loser':
+            round_max_loss_match_count[match['roundNumber']] = max(match['matchNumber'],
+                                                                  round_max_loss_match_count[match['roundNumber']])
+
+        if not 'teamID' in match['top']:
+            continue
+
+        if match['top']['teamID'] in team_previous_round:
+            if team_previous_round[match['top']['teamID']]:
+                bracket_type = 'W'
+            else:
+                bracket_type = 'D'
         else:
-            bracket_type = 'W'
+            bracket_type = 'D'
+
+        if match['matchType'] == 'winner':
+            round_match_offset = -2 * round_max_win_match_count[match['roundNumber'] - 1]
+        else:
+            round_match_offset = -2 * round_max_loss_match_count[match['roundNumber'] - 1] \
+                                 + (round_max_win_match_count[match['roundNumber']]
+                                    - round_max_win_match_count[match['roundNumber'] - 1]) * 2
 
         bracket_indicator = '|R' + str(match['roundNumber']) + bracket_type \
-                            + str(round_team_number[match['roundNumber'] - 1])
+                            + str(match['matchNumber'] * 2 - 1 + round_match_offset)
 
         if 'teamID' in match['top']:
             team_name = bw_teams.get_team_info(teams[match['top']['teamID']]['persistentTeamID'],
@@ -256,12 +293,24 @@ def create_elim_bracket(stage, teams, bw_teams):
             bracket += bracket_indicator + 'score=' + str(match['top']['score']) + ' '
         if 'winner' in match['top'] and match['top']['winner']:
             bracket += bracket_indicator + 'win=1 '
+            team_previous_round[match['top']['teamID']] = True
+        else:
+            team_previous_round[match['top']['teamID']] = False
         bracket += '\n'
 
-        round_team_number[match['roundNumber'] - 1] += 1
+        if 'teamID' in match['bottom']:
+            if match['bottom']['teamID'] in team_previous_round:
+                if team_previous_round[match['bottom']['teamID']]:
+                    bracket_type = 'W'
+                else:
+                    bracket_type = 'D'
+            else:
+                bracket_type = 'D'
+        else:
+            bracket_type = 'D'
 
         bracket_indicator = '|R' + str(match['roundNumber']) + bracket_type \
-                            + str(round_team_number[match['roundNumber'] - 1])
+                            + str(match['matchNumber'] * 2 + round_match_offset)
 
         if 'teamID' in match['bottom']:
             team_name = bw_teams.get_team_info(teams[match['bottom']['teamID']]['persistentTeamID'],
@@ -273,9 +322,10 @@ def create_elim_bracket(stage, teams, bw_teams):
             bracket += bracket_indicator + 'score=' + str(match['bottom']['score']) + ' '
         if 'winner' in match['bottom'] and match['bottom']['winner']:
             bracket += bracket_indicator + 'win=2 '
+            team_previous_round[match['bottom']['teamID']] = True
+        elif 'teamID' in match['bottom']:
+            team_previous_round[match['bottom']['teamID']] = False
         bracket += '\n'
-
-        round_team_number[match['roundNumber'] - 1] += 1
 
     bracket += '}}\n'
 
@@ -284,19 +334,23 @@ def create_elim_bracket(stage, teams, bw_teams):
 
 def create_match_maps(match, teams, bw_teams):
     match_line = ''
-    if match['isBye']:
-        return match_line
     if not match['isComplete']:
         return match_line
 
     match_line = '{{MatchMaps\n'
     match_line += '|date=\n'
 
-    team_top = bw_teams.get_team_info(teams[match['top']['teamID']]['persistentTeamID'],
-                                      teams[match['top']['teamID']]['name'])
+    if 'teamID' in match['top']:
+        team_top = bw_teams.get_team_info(teams[match['top']['teamID']]['persistentTeamID'],
+                                          teams[match['top']['teamID']]['name'])
+    elif match['isBye']:
+        team_top = bw_teams.get_team_info('0', 'BYE')
 
-    team_bot = bw_teams.get_team_info(teams[match['bottom']['teamID']]['persistentTeamID'],
-                                      teams[match['bottom']['teamID']]['name'])
+    if 'teamID' in match['bottom']:
+        team_bot = bw_teams.get_team_info(teams[match['bottom']['teamID']]['persistentTeamID'],
+                                          teams[match['bottom']['teamID']]['name'])
+    elif match['isBye']:
+        team_bot = bw_teams.get_team_info('0', 'BYE')
 
     match_line += '|team1=' + team_top['teamteamplate']
     match_line += '|team2=' + team_bot['teamteamplate']
@@ -308,8 +362,21 @@ def create_match_maps(match, teams, bw_teams):
     else:
         match_line += '|winner=0\n'
 
-    match_line += '|games1=' + str(match['top']['score'])
-    match_line += '|games2=' + str(match['bottom']['score']) + '\n'
+    if match['isBye']:
+        match_line += '|walkover=1'
+        match_line += '|games1='
+        if match['top']['winner']:
+            match_line += 'W'
+        else:
+            match_line += 'FF'
+        match_line += '|games2='
+        if match['bottom']['winner']:
+            match_line += 'W'
+        else:
+            match_line += 'FF'
+    else:
+        match_line += '|games1=' + str(match['top']['score'])
+        match_line += '|games2=' + str(match['bottom']['score']) + '\n'
     match_line += '|details={{BracketMatchSummary\n'
     match_line += '|date=|finished=true\n'
     match_line += '|twitch= |youtube=\n'
@@ -383,16 +450,17 @@ def main():
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
     twin_suns_tourny_id = '60806876938bed74f6edea9e'
-    tournament_id = twin_suns_tourny_id
-    wiki_name = 'Twin Suns Tournament'
-    participant_tabs = [
-        {'tab_name': 'Top 16',
-         'count': 16},
-        {'tab_name': 'Top 32',
-         'count': 32},
-        {'tab_name': 'Other Notable Participants',
-         'count': -1},
-    ]
+    gsl_s1_id = '5ff4b388fd124e11b18e185d'
+    tournament_id = gsl_s1_id
+    wiki_name = 'Global_Squadrons_League/2021/Season_1'
+    participant_tabs = []
+    #     {'tab_name': 'Top 16',
+    #      'count': 16},
+    #     {'tab_name': 'Top 32',
+    #      'count': 32},
+    #     {'tab_name': 'Other Notable Participants',
+    #      'count': -1},
+    # ]
 
     bw_teams = battlefy_wiki_linkings.BattlefyWikiTeamLinkings()
     bw_players = battlefy_wiki_linkings.BattlefyWikiPlayerLinkings()
