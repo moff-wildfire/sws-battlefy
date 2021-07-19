@@ -1,5 +1,5 @@
 id,name,image,teamteamplate
-5ff62fc5c184ed1e77d3ed3a,16-Bit Esports: Imperial Guard,16BIG_Imperial_Guard.png,16-bit esports: imperial guard
+5ff62fc5c184ed1e77d3ed3a,Imperial Guard,Imperial_Guard.png,imperial guard
 6089b111c8543a1195af79e8,612th Valor Squadron,,612th valor squadron
 6084979b8d4bbb11b30beb76,675 Callisto Squadron,675_callisto_squadron_lightmode_full.png,675 callisto squadron
 5ff70fc68b84bd1ddd49e159,7th Fleet 23rd Tactical Squadron 'Vipers',,7th fleet 23rd tactical squadron 'vipers'
@@ -30,6 +30,7 @@ id,name,image,teamteamplate
 5ff562eecc1f0b11b8c4c956,Crone Squadron,Crone Squadron Logo.png,crone squadron
 5ff628d2bd3cd51eeee6b348,Da Nightfall Squadrone,,da nightfall squadrone
 60950c3efed58511dbb0aa93,EH Storm Pickle Horns,,eh storm pickle horns
+60b612a63356347489632aa3,EWOK Fluffy Revenge,,ewok fluffy revenge
 5ff4d8bcb8bc532a0b43c705,Error Squadron,Error Squadron Logo.png,error squadron
 6049060c3c933041a7a3700b,Extreme Elite,Extreme_Elite_Logo.png,extreme elite
 5ff4ad5c8d443f7e3c62f77b,Firaxa Squadron,Firaxa_Squadron_logo.png,firaxa squadron
@@ -57,7 +58,8 @@ id,name,image,teamteamplate
 5ff55ef05bdf2a1197cc45d0,Hex Squadron,Hex Squadron.png,hex squadron
 5ff47e63d749de11a024d20a,Hutt Cartel,Hutt Cartel Light Logo.png,hutt cartel
 600882375ee4244628ae8007,Hutt Cartel,Hutt Cartel Light Logo.png,hutt cartel
-607606b2521bb713377dec69,Hutt Peach Cartel,,hutt peach cartel
+60e2dffa86801c118960698b,Hutt Peach Cartel,Hutt_peach_cartel_allmode.png,hutt peach cartel
+607606b2521bb713377dec69,Hutt Peach Cartel,Hutt_peach_cartel_allmode.png,hutt peach cartel
 5ff6213fba1b0c11a8f62b3c,IN Death Squadron,,in death squadron
 6054e5031b9c6f0a1cc69898,Jabba's Jawas,,jabba's jawas
 5ff6c40fc184ed1e77d3f04a,Jawa Scavengers,,jawa scavengers
@@ -83,7 +85,7 @@ id,name,image,teamteamplate
 5ff4a2505bdf2a1197cc415e,Rogue181st Squadron,,rogue181st squadron
 5ff4f25c9ddc62118db7ae37,RuffNeck Squadron,Ruffneck Squadron Logo.png,ruffneck squadron
 5ff58f784f8d38117e825491,Rune Squadron,,rune squadron
-5ff669ff95ad3a0a9a1f627c,Savrip Squadron,Savrip Light.png,savrip squadron
+5ff669ff95ad3a0a9a1f627c,Savrip Squadron,Savrip_2021_allmode_full.png,savrip squadron
 5ff4ec06cfb32f1192b7ef62,Shrapnel Squadron,Shrapnel Squadron Logo.png,shrapnel squadron
 6085a84cecc12e2f213fc83f,Shrapnel Squadron,Shrapnel Squadron Logo.png,shrapnel squadron
 608738bfdc51de7852c0bc5f,Sigil Squadron,Sigil Squadron allmode full.png,sigil squadron
@@ -92,7 +94,7 @@ id,name,image,teamteamplate
 5ff7a1978b70a211e40367a9,Spectre,,spectre
 60088a7c3138396b94fd70d2,Spicy Squadron,Spicy Squadron allmode.png,spicy squadron
 5ff4a6ee4f8d38117e825010,Splinter Gaming,Splinter Gaming.png,splinter gaming
-6048d3595249ec41b0b55c2d,Storm Whistles,,storm whistles
+6048d3595249ec41b0b55c2d,Storm Whistles,Storm_Whistles_Logo.png,storm whistles
 5ffba940c1200a1190e6b335,TGW Squadron,,tgw squadron
 6008b0950a5b3c55c03b5209,TIE Fighter Alliance Crimson,TFACrimson.png,tie fighter alliance royal guard crimson flight
 604c167dada78048d937e461,TIE Fighter Alliance Crimson,TFACrimson.png,tie fighter alliance royal guard crimson flight
