@@ -65,6 +65,8 @@ def main():
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
     twin_suns_tourny_id = '60806876938bed74f6edea9e'
+    ccs_summer_minor_id = '60b41961d35b1411a7b31d64'
+    ccs_summer_major_id = '60dd319012cb9c33c2f63868'
 
     event_list = list()
     event_list.append({
@@ -103,11 +105,29 @@ def main():
                         'new_players': 0,
                         'total_players': 0
                       })
+    # event_list.append({
+    #                     'data': battlefy_data.BattlefyData(twin_suns_tourny_id),
+    #                     'qualify_stage': 0,
+    #                     'qualify_number': 16,
+    #                     'finalized': True,
+    #                     'top_teams': dict(),
+    #                     'new_players': 0,
+    #                     'total_players': 0
+    #                   })
     event_list.append({
-                        'data': battlefy_data.BattlefyData(twin_suns_tourny_id),
+                        'data': battlefy_data.BattlefyData(ccs_summer_minor_id),
                         'qualify_stage': 0,
                         'qualify_number': 16,
                         'finalized': True,
+                        'top_teams': dict(),
+                        'new_players': 0,
+                        'total_players': 0
+                      })
+    event_list.append({
+                        'data': battlefy_data.BattlefyData(ccs_summer_major_id),
+                        'qualify_stage': 0,
+                        'qualify_number': 16,
+                        'finalized': False,
                         'top_teams': dict(),
                         'new_players': 0,
                         'total_players': 0

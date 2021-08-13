@@ -63,7 +63,12 @@ def main():
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
     twin_suns_tourny_id = '60806876938bed74f6edea9e'
-    tournament_id = twin_suns_tourny_id
+    gsl_s1_id = '5ff4b388fd124e11b18e185d'
+    ccs_summer_minor_id = '60b41961d35b1411a7b31d64'
+    ccs_summer_major_id = '60dd319012cb9c33c2f63868'
+    ccs_fall_minor_id = ''
+    ccs_fall_major_id = ''
+    tournament_id = ccs_fall_minor_id
     event_data = battlefy_data. BattlefyData(tournament_id)
     event_data.load_tournament_data()
 
@@ -80,7 +85,7 @@ def main():
         f.write(teams)
 
     event_data.dl_team_logos()
-    #
+
     event_data.dl_screen_shots()
 
 

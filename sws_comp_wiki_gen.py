@@ -446,21 +446,39 @@ def create_prize_pool(prize):
 
 def main():
     ccs_winter_minor_id = '5ff3354193edb53839d44d55'
+    ccs_winter_minor_wiki = 'Calrissian_Cup/Winter/Minor'
     ccs_winter_major_id = '60019f8ebcc5ed46373408a1'
+    ccs_winter_major_wiki = 'Calrissian_Cup/Winter/Major'
     ccs_spring_minor_id = '603c00fbfe4fb811b3168f5b'
+    ccs_spring_minor_wiki = 'Calrissian_Cup/Spring/Minor'
     ccs_spring_major_id = '6061b764f68d8733c8455fcf'
+    ccs_spring_major_wiki = 'Calrissian_Cup/Spring/Major'
+    ccs_summer_minor_id = '60b41961d35b1411a7b31d64'
+    ccs_summer_minor_wiki = 'Calrissian_Cup/Summer/Minor'
+    ccs_summer_major_id = '60dd319012cb9c33c2f63868'
+    ccs_summer_major_wiki = 'Calrissian_Cup/Summer/Major'
+    ccs_fall_minor_id = ''
+    ccs_fall_minor_wiki = 'Calrissian_Cup/Fall/Minor'
+    ccs_fall_major_id = ''
+    ccs_fall_major_wiki = 'Calrissian_Cup/Fall/Major'
+
+
     twin_suns_tourny_id = '60806876938bed74f6edea9e'
+    twin_suns_wiki = 'Twin_Suns_Tournament'
     gsl_s1_id = '5ff4b388fd124e11b18e185d'
-    tournament_id = gsl_s1_id
-    wiki_name = 'Global_Squadrons_League/2021/Season_1'
-    participant_tabs = []
-    #     {'tab_name': 'Top 16',
-    #      'count': 16},
-    #     {'tab_name': 'Top 32',
-    #      'count': 32},
-    #     {'tab_name': 'Other Notable Participants',
-    #      'count': -1},
-    # ]
+    gsl_s1_wiki = 'Global_Squadrons_League/2021/Season_1'
+
+
+    tournament_id = twin_suns_tourny_id
+    wiki_name = twin_suns_wiki
+    participant_tabs = [
+        {'tab_name': 'Top 16',
+         'count': 16},
+        # {'tab_name': 'Top 32',
+        #  'count': 32},
+        {'tab_name': 'Other Notable Participants',
+         'count': -1},
+    ]
 
     bw_teams = battlefy_wiki_linkings.BattlefyWikiTeamLinkings()
     bw_players = battlefy_wiki_linkings.BattlefyWikiPlayerLinkings()
