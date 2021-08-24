@@ -1,11 +1,13 @@
 id,name,link,flag
 5ff4c5ff63cc041186bbd5c3,!!!_BARON,,us
+611539a73dbcdf2ea27140d2,-JPRS-cocoa_L10N,,
 60c277e9a89e1827c4692f71,-TS - Alex95JJ,,
 5ff79fd7bd3cd51eeee6ba82,-TS- MrBigBrainThe2nd,,
 5cf14a5fd988ff035cc5b7bd,.exe,,
 600c8060c7074056896fa660,501e_lauthian,,
 5ff6fd4eb0f6601ed628529d,999Duke,,
 5a512d8e3d0cb2034f57e7f4,A.Ham,,us
+61134acf8618127de2a92db9,AJ-SINISTER,,
 608b48247230f532c22730ea,AbtotsJMH,,
 6000b74d3221db4611af3aac,Abysmall20,,
 5fc48bab9e5c841198d005ec,Adalla,,
@@ -19,7 +21,7 @@ id,name,link,flag
 5ffbadaa7315631e666a7e46,Alcom,,us
 6001ff4b0f249211922c369e,Alec,,
 5ffce389d70593465597a1bc,Alek 8 Spartan,,
-5ff4a6b9ba1b0c11a8f61eeb,Alex,Alex (UK Player),uk
+5ff4a6b9ba1b0c11a8f61eeb,Alex,,uk
 5ffb398f3bc1da119f166a90,Alex,Alex (US Player),us
 601336ab1f2dc011a748f780,Alto,,
 608b4567cf99e72a16a95d7a,AnEpicPolarBear,,
@@ -120,6 +122,7 @@ id,name,link,flag
 608a8fc9533be611d5c246db,Curro5150,,es
 5ff4aa88aafd0558a068417c,CurtisMarauder,,
 5ff786786ceb5c1dd422017b,CyberRaptor,,
+6116160e7d829511b6bece99,Cynric-SINISTER,,
 603a65642a7140117245b64b,DJ_Anuz,,
 5ff53226d749de11a024d806,DStriK,,
 5ff9161129f2f611b644af00,DUB C1987,,
@@ -195,6 +198,7 @@ id,name,link,flag
 5ff623c28d443f7e3c630616,FormulaRedline,,
 5fd16ff2f2b2ef0cb211cf0a,Fortunerunner,,
 5ff79a1928c5981dce1e81e9,Fox,,
+611730576ec95b2f2aa7c505,Fox,,us
 5ff63045d4da511e7f325149,Foxx MDM,,
 5ffbc51a4a5f90119616969b,Frosty21,,us
 600267b952e4a030c132a887,FubuAesthetic,,
@@ -248,6 +252,9 @@ id,name,link,flag
 5ff4ba733932db328e629c2f,JC,,ca
 609436a7ef449e2156a71fba,JJRPIII,,
 5ff9ca454f69bb119bf638e9,JMNeal86,,
+61153a948618127de2a93819,JPRS-Jack＿Norissun,,
+61159a2ad20cfa1de5dcb4d8,JPRS-beryl831,,
+61152e55286cce5f6ffd66a2,JPRS_Hail Lucoa-san,,
 5ff5f3f963cc041186bbdc49,Jack From Virtual Essays,,ca
 6074c1425100561142e38333,JackSpartan15,,
 600886040a5b3c55c03b503c,Jackson,,us
@@ -366,6 +373,7 @@ id,name,link,flag
 6048e807a988aa3614ae45e5,Mystnart,,
 5ef514c7ab27634efa2f2912,N0V0w3ls,,
 564f7551af08b6480067c18c,NPC Squadron,,
+611155368319712eaed7c82f,NRN_Halfaship,,
 60c152bc32e6503185659e05,NRN_JonathanJol,,
 60c117a7e85649209c21a6c4,NRN_Vianna_AHS,,
 6026ca9cddb0cc11c94e438a,Nail-Z,,
@@ -429,6 +437,7 @@ id,name,link,flag
 5ff4b5ddb8bc532a0b43c5f6,RMT__Twigs,,
 5ff5818763cc041186bbdb26,RadiantPrime,,ukwa
 5ff66d97d4da511e7f3253e7,Ralph,,br
+610da0571c87ad11532672ea,Rando_NomLumb,,
 60943950934be111ac230a85,Rapido_Snake,,
 5ff4d637ffbe666f1fae1fc7,Rasta-Ryz,,
 5ff5d7253932db328e62a42f,Raustie,,
@@ -463,6 +472,7 @@ id,name,link,flag
 5ffcff83997f9d4664329095,RyanTM,,
 5ff656d88b84bd1ddd49deda,Rytackle,,
 5ff8f6afd634be1181cf037f,Rythm,,
+60f102e58847561158c92a1f,SISYPHISTJP,,
 5ff484f6316d6111a07d5f8e,SQ,,us
 6031eae0779ba92a87dbf53e,SR-Frostyflake,,us
 5ff6451bd4da511e7f325204,SabaccMaster123,,
@@ -514,8 +524,10 @@ id,name,link,flag
 5ff6689027d2f30a84cbf64b,Spinnaker,,
 5ff78dd76ceb5c1dd42201ae,Spinner,,
 60491761f75e9641c2446e3e,SpooneyToe11240,,us
+6115d5728ad8c511ab06848c,Spoonman,,
 5ff918f0cae4461196a1aafe,SquidMortem,,
 5ff64cae737cc91ece843556,SquisheeBall,,
+6113437271715b5f4fdfc1e5,Staffycat,,
 5ff625f58b84bd1ddd49dcee,StarFox7652,,
 5ff494d1ba1b0c11a8f61e77,Stardewd,,at
 60752f3041ecb302b52146cc,Stardust89,,
@@ -533,6 +545,7 @@ id,name,link,flag
 5ff60e9f8d443f7e3c630549,Swift,,us
 5ff4f8fdfba0401180fcdc90,T2aSH,,
 6094c46c0a6666119d6992f3,TEAMSTERS,,
+60911591a961e64b052da2c0,TSQ-Falarius,,
 5ffa3eab8b84bd1ddd49f96e,Taco,,
 6025dd8508d6c576f708549d,Tanno,,
 606e43f2fe869e35919313f2,Taras Bulba,,
@@ -710,6 +723,7 @@ id,name,link,flag
 5ff50a04b8bc532a0b43c83f,symbolsix,,
 5c71c78280717d0313b47092,syntheticmuffin,,
 5c828e25a55e03035819e040,timebomb,,us
+611782021cc7961daf52a1f2,torutaka522,,
 5ff7a83b5c338011de35cf22,tunabreath,,ca
 5ff4e6123932db328e629da2,turnup_turnip,,us
 6094b118cf99e72a16a9969e,tyler,,
