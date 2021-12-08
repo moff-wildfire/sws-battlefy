@@ -49,6 +49,7 @@ def create_event_team_player_lists(event, player_event_count):
             else:
                 if player['_id'] in eventid_to_missing_userid:
                     event_player_team[eventid_to_missing_userid[player['_id']]] = persistent_team_id
+                    event_player_name[eventid_to_missing_userid[player['_id']]] = player['inGameName']
                     if 'userID' not in player_event_count:
                         player_event_count[eventid_to_missing_userid[player['_id']]] = 1
                     else:
@@ -57,6 +58,7 @@ def create_event_team_player_lists(event, player_event_count):
                     print("Missing userID for:", player['inGameName'], 'on team',
                           event['data'].tournament_data['teams'][team]['name'])
     return event_teams, event_player_team, event_player_name, player_event_count
+
 
 def main():
 
@@ -67,6 +69,8 @@ def main():
     twin_suns_tourny_id = '60806876938bed74f6edea9e'
     ccs_summer_minor_id = '60b41961d35b1411a7b31d64'
     ccs_summer_major_id = '60dd319012cb9c33c2f63868'
+    ccs_fall_minor_id = '60fa26043ba15d73719669bd'
+    ccs_fall_major_id = '61314505635fe17a14eafe03'
 
     event_list = list()
     event_list.append({
@@ -105,15 +109,15 @@ def main():
                         'new_players': 0,
                         'total_players': 0
                       })
-    # event_list.append({
-    #                     'data': battlefy_data.BattlefyData(twin_suns_tourny_id),
-    #                     'qualify_stage': 0,
-    #                     'qualify_number': 16,
-    #                     'finalized': True,
-    #                     'top_teams': dict(),
-    #                     'new_players': 0,
-    #                     'total_players': 0
-    #                   })
+    event_list.append({
+                        'data': battlefy_data.BattlefyData(twin_suns_tourny_id),
+                        'qualify_stage': 0,
+                        'qualify_number': 16,
+                        'finalized': True,
+                        'top_teams': dict(),
+                        'new_players': 0,
+                        'total_players': 0
+                      })
     event_list.append({
                         'data': battlefy_data.BattlefyData(ccs_summer_minor_id),
                         'qualify_stage': 0,
@@ -126,8 +130,26 @@ def main():
     event_list.append({
                         'data': battlefy_data.BattlefyData(ccs_summer_major_id),
                         'qualify_stage': 0,
+                        'qualify_number': 26,
+                        'finalized': True,
+                        'top_teams': dict(),
+                        'new_players': 0,
+                        'total_players': 0
+                      })
+    event_list.append({
+                        'data': battlefy_data.BattlefyData(ccs_fall_minor_id),
+                        'qualify_stage': 0,
                         'qualify_number': 16,
-                        'finalized': False,
+                        'finalized': True,
+                        'top_teams': dict(),
+                        'new_players': 0,
+                        'total_players': 0
+                      })
+    event_list.append({
+                        'data': battlefy_data.BattlefyData(ccs_fall_major_id),
+                        'qualify_stage': 0,
+                        'qualify_number': 16,
+                        'finalized': True,
                         'top_teams': dict(),
                         'new_players': 0,
                         'total_players': 0
@@ -181,20 +203,19 @@ def main():
             # Find all players that transferred to a new team
             for i, top_player in reversed(list(enumerate(top_teams[top_team]['players']))):
                 if top_player['userID'] in event_player_team:
+                    if top_teams[top_team]['players'][i]['inGameName'] != event_player_name[top_player['userID']]:
+                        print("Player changed in game name from",
+                              top_teams[top_team]['players'][i]['inGameName'], "to",
+                              event_player_name[top_player['userID']])
+                        # Fix name
+                        top_teams[top_team]['players'][i]['inGameName'] = \
+                            event_player_name[top_player['userID']]
+
                     if event_player_team[top_player['userID']] != persistent_team_id:
                         print("Removing", top_player['inGameName'], "from", top_teams[top_team]['name'],
                               "as they transferred teams to",
                               event_teams[event_player_team[top_player['userID']]]['name'])
                         del top_teams[top_team]['players'][i]
-                    else:
-                        if top_teams[top_team]['players'][i]['inGameName'] != event_player_name[
-                                                                                    top_player['userID']]:
-                            print("Player changed in game name from",
-                                  top_teams[top_team]['players'][i]['inGameName'], "to",
-                                  event_player_name[top_player['userID']])
-                            # Fix name
-                            top_teams[top_team]['players'][i]['inGameName'] = \
-                                event_player_name[top_player['userID']]
 
             # Find all players that joined a team and add them as a freeagent to the top_teams list
             # And purge all players not participating
@@ -268,11 +289,35 @@ def main():
     #     f.write(teams)
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-    print("Players rostered in 1  event: ", str(sum(map((1).__eq__, player_event_count.values()))))
-    print("Players rostered in 2 events: ", str(sum(map((2).__eq__, player_event_count.values()))))
-    print("Players rostered in 3 events: ", str(sum(map((3).__eq__, player_event_count.values()))))
-    print("Players rostered in 4 events: ", str(sum(map((4).__eq__, player_event_count.values()))))
-    print("Players rostered in 5 events: ", str(sum(map((5).__eq__, player_event_count.values()))))
+    total_players = 0
+    event_players = sum(map((1).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 1  event: ", str(event_players))
+    event_players = sum(map((2).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 2 events: ", str(event_players))
+    event_players = sum(map((3).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 3 events: ", str(event_players))
+    event_players = sum(map((4).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 4 events: ", str(event_players))
+    event_players = sum(map((5).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 5 events: ", str(event_players))
+    event_players = sum(map((6).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 6 events: ", str(event_players))
+    event_players = sum(map((7).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 7 events: ", str(event_players))
+    event_players = sum(map((8).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 8 events: ", str(event_players))
+    event_players = sum(map((9).__eq__, player_event_count.values()))
+    total_players += event_players
+    print("Players rostered in 9 events: ", str(event_players))
+    print("Total Players: ", str(total_players))
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     for event in event_list:
         print(event['data'].tournament_data['name'], "had", str(event['total_players']), "players on",
