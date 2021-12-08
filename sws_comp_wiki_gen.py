@@ -79,20 +79,19 @@ def create_event_format(data):
     return event_format
 
 
-def create_participants(data, bw_players, bw_teams, dynamic=[], sort_place=True):
-    header = '{{TeamCardToggleButton}}\n'
+def rank_teams(data, bw_teams, sort_place=True, break_ties=False):
 
-    teams_ordered = ''
-
-    # Use prior rounds as a tiebreaker for when multiple teams have the same place at the end
     for stage in data['stages']:
         for place, standing in enumerate(stage['standings']):
             if 'place' in standing:
                 if 'place' not in data['teams'][standing['team']['_id']]:
                     data['teams'][standing['team']['_id']]['place'] = len(stage['standings']) + place
                 else:
-                    data['teams'][standing['team']['_id']]['place'] = \
-                        standing['place'] + (1 - 1 / data['teams'][standing['team']['_id']]['place'])
+                    if break_ties:
+                        data['teams'][standing['team']['_id']]['place'] = \
+                            standing['place'] + (1 - 1 / data['teams'][standing['team']['_id']]['place'])
+                    else:
+                        data['teams'][standing['team']['_id']]['place'] = standing['place']
             else:
                 data['teams'][standing['team']['_id']]['place'] = len(stage['standings']) + place
 
@@ -113,6 +112,17 @@ def create_participants(data, bw_players, bw_teams, dynamic=[], sort_place=True)
         teams = sorted(teams, key=itemgetter(2, 4, 0))
     else:
         teams = sorted(teams, key=itemgetter(4, 0))
+
+    return teams
+
+
+def create_participants(data, bw_players, bw_teams, dynamic=[], sort_place=True):
+    header = '{{TeamCardToggleButton}}\n'
+
+    teams_ordered = ''
+
+    # Use prior rounds as a tiebreaker for when multiple teams have the same place at the end
+    teams = rank_teams(data, bw_teams, sort_place)
 
     dynamic_idx = 0
     if dynamic:
@@ -233,9 +243,9 @@ def create_elim_bracket(stage, teams, bw_teams):
     team_previous_round = dict()
 
     # set up round-match count trackers
-    round_max_win_match_count = [1] * len(stage['bracket']['series'])
+    round_max_win_match_count = [1] * (len(stage['bracket']['series']) + 1)
     round_max_win_match_count[0] = 0
-    round_max_loss_match_count = [1] * len(stage['bracket']['series'])
+    round_max_loss_match_count = [1] * (len(stage['bracket']['series']) + 1)
     round_max_loss_match_count[0] = 0
 
     # matches = sorted(stage['matches'], key=itemgetter('matchNumber'))
@@ -255,12 +265,12 @@ def create_elim_bracket(stage, teams, bw_teams):
         #   https://liquipedia.net/rainbowsix/Template:8DETeamBracket/doc
         #   https://liquipedia.net/rainbowsix/Template:16DETeamBracket/doc
 
-        if match['matchType'] == 'winner':
-            round_max_win_match_count[match['roundNumber']] = max(match['matchNumber'],
-                                                                  round_max_win_match_count[match['roundNumber']])
-        elif match['matchType'] == 'loser':
-            round_max_loss_match_count[match['roundNumber']] = max(match['matchNumber'],
-                                                                  round_max_loss_match_count[match['roundNumber']])
+        # if match['matchType'] == 'winner':
+        #     round_max_win_match_count[match['roundNumber']] = max(match['matchNumber'],
+        #                                                           round_max_win_match_count[match['roundNumber']])
+        # elif match['matchType'] == 'loser':
+        #     round_max_loss_match_count[match['roundNumber']] = max(match['matchNumber'],
+        #                                                           round_max_loss_match_count[match['roundNumber']])
 
         if not 'teamID' in match['top']:
             continue
@@ -279,6 +289,14 @@ def create_elim_bracket(stage, teams, bw_teams):
             round_match_offset = -2 * round_max_loss_match_count[match['roundNumber'] - 1] \
                                  + (round_max_win_match_count[match['roundNumber']]
                                     - round_max_win_match_count[match['roundNumber'] - 1]) * 2
+
+        # Increment for next time
+        if match['matchType'] == 'winner':
+            round_max_win_match_count[match['roundNumber']] = max(match['matchNumber'],
+                                                                  round_max_win_match_count[match['roundNumber']])
+        elif match['matchType'] == 'loser':
+            round_max_loss_match_count[match['roundNumber']] = max(match['matchNumber'],
+                                                                   round_max_loss_match_count[match['roundNumber']])
 
         bracket_indicator = '|R' + str(match['roundNumber']) + bracket_type \
                             + str(match['matchNumber'] * 2 - 1 + round_match_offset)
@@ -355,9 +373,11 @@ def create_match_maps(match, teams, bw_teams):
     match_line += '|team1=' + team_top['teamteamplate']
     match_line += '|team2=' + team_bot['teamteamplate']
 
-    if match['top']['winner']:
+    if 'isTie' in match and match['isTie']:
+        match_line += '|winner=0\n'
+    elif 'winner' in match['top'] and match['top']['winner']:
         match_line += '|winner=1\n'
-    elif match['bottom']['winner']:
+    elif 'winner' in match['bottom'] and match['bottom']['winner']:
         match_line += '|winner=2\n'
     else:
         match_line += '|winner=0\n'
@@ -370,7 +390,7 @@ def create_match_maps(match, teams, bw_teams):
         else:
             match_line += 'FF'
         match_line += '|games2='
-        if match['bottom']['winner']:
+        if 'winner' in match['bottom'] and match['bottom']['winner']:
             match_line += 'W'
         else:
             match_line += 'FF'
@@ -388,7 +408,11 @@ def create_match_maps(match, teams, bw_teams):
 
 def create_round_robin_tables(stage, teams, bw_teams, wiki_name, include_matches=True):
     tables = ''
-    for group in stage['groups']:
+    for idx, group in enumerate(stage['groups']):
+        if idx == 1:
+            tables += '{{box|start|padding=2em}}\n'
+        else:
+            tables += '{{box|break|padding=2em}}\n'
         tables += '===={{HiddenSort|Group ' + group['name'] + '}}====\n'
         tables += '{{GroupTableLeague|title=Group ' + group['name'] + '|width=450px|show_p=false|date=|ties=true\n'
         tables += '|tournament=' + wiki_name + '\n'
@@ -420,8 +444,7 @@ def create_round_robin_tables(stage, teams, bw_teams, wiki_name, include_matches
                 match_table += match_line
             tables += match_table
             tables += '{{MatchListEnd}}\n'
-        tables += '{{box|break|padding=2em}}\n'
-
+    tables += '{{box|end}}\n'
     return tables
 
 
@@ -457,10 +480,14 @@ def main():
     ccs_summer_minor_wiki = 'Calrissian_Cup/Summer/Minor'
     ccs_summer_major_id = '60dd319012cb9c33c2f63868'
     ccs_summer_major_wiki = 'Calrissian_Cup/Summer/Major'
-    ccs_fall_minor_id = ''
+    ccs_fall_minor_id = '60fa26043ba15d73719669bd'
     ccs_fall_minor_wiki = 'Calrissian_Cup/Fall/Minor'
-    ccs_fall_major_id = ''
+    ccs_fall_major_id = '61314505635fe17a14eafe03'
     ccs_fall_major_wiki = 'Calrissian_Cup/Fall/Major'
+    ccs_championship_id = '6150dd2b0dd060282bebb0eb'
+    ccs_championship_wiki = 'Calrissian_Cup/Championship'
+    world_cup_id = '611dac6ecb6f6260d5f30b6e'
+    world_cup_wiki = 'World_Cup'
 
 
     twin_suns_tourny_id = '60806876938bed74f6edea9e'
@@ -469,15 +496,15 @@ def main():
     gsl_s1_wiki = 'Global_Squadrons_League/2021/Season_1'
 
 
-    tournament_id = twin_suns_tourny_id
-    wiki_name = twin_suns_wiki
+    tournament_id = world_cup_id
+    wiki_name = world_cup_wiki
     participant_tabs = [
-        {'tab_name': 'Top 16',
-         'count': 16},
+        # {'tab_name': 'Top 16',
+        #  'count': 16},
         # {'tab_name': 'Top 32',
         #  'count': 32},
-        {'tab_name': 'Other Notable Participants',
-         'count': -1},
+        # {'tab_name': 'Other Notable Participants',
+        #  'count': -1},
     ]
 
     bw_teams = battlefy_wiki_linkings.BattlefyWikiTeamLinkings()
@@ -485,6 +512,9 @@ def main():
 
     event_data = battlefy_data.BattlefyData(tournament_id)
     event_data.load_tournament_data()
+
+    # FORCE REDUCE TEAMS
+    event_data.reduce_teams()
 
     event_path = event_data.get_tournament_data_path()
     event_path.mkdir(parents=True, exist_ok=True)

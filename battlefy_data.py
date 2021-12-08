@@ -77,15 +77,18 @@ class BattlefyData(object):
             self.tournament_data['teams'][id] = eachElement
 
         if reduce_teams:
-            # Purge teams not on the standings. This can happen if they failed to check-in
-            participating_teams = set()
-            for stage in self.tournament_data['stages']:
-                for standing in stage['standings']:
-                    participating_teams.add(standing['teamID'])
+            self.reduce_teams()
 
-            purge_teams = (self.tournament_data['teams'].keys() | set()).difference(participating_teams)
-            for team_id in purge_teams:
-                del self.tournament_data['teams'][team_id]
+    def reduce_teams(self):
+        # Purge teams not on the standings. This can happen if they failed to check-in
+        participating_teams = set()
+        for stage in self.tournament_data['stages']:
+            for standing in stage['standings']:
+                participating_teams.add(standing['teamID'])
+
+        purge_teams = (self.tournament_data['teams'].keys() | set()).difference(participating_teams)
+        for team_id in purge_teams:
+            del self.tournament_data['teams'][team_id]
 
     def dl_stage_standings_data(self):
         for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
@@ -102,9 +105,19 @@ class BattlefyData(object):
     def dl_screen_shots(self):
         for stage_number, stage_id in enumerate(self.tournament_data['stageIDs']):
             for match in self.tournament_data['stages'][stage_number]['matches']:
-                if 'screenshots' in match:
+                try:
                     team1 = slugify(self.tournament_data['teams'][match['top']['teamID']]['name'])
+                except KeyError:
+                    team1 = "unknown"
+
+                try:
                     team2 = slugify(self.tournament_data['teams'][match['bottom']['teamID']]['name'])
+                except KeyError:
+                    team2 = "unknown"
+                
+                screenshot_count = 0
+                
+                if 'screenshots' in match:
                     for submitter in match['screenshots']:
                         for game in match['screenshots'][submitter]:
                             url = match['screenshots'][submitter][game][0]
@@ -123,6 +136,21 @@ class BattlefyData(object):
                             new_image = Path.joinpath(directory, filename)
                             if not new_image.exists():
                                 urllib.request.urlretrieve(url, new_image)
+                            screenshot_count += 1
+                
+                if not team1 == 'unknown' and not team2 == 'unknown':
+                    # print(str(stage_number+1) + "," + str(match['roundNumber']) + "," + team1 + "," + team2)
+                    pass
+                if not screenshot_count:
+                    # print("MISSING SCREENSHOTS " + "Stage: " + str(stage_number+1) + " Round: " + str(match['roundNumber']) + " " + team1 + " vs " + team2)
+                    pass
+                elif screenshot_count == 2:
+                    # print(str(screenshot_count) + " screenshots for " + "Stage: " + str(
+                    #     stage_number + 1) + " Round: " + str(match['roundNumber']) + " " + team1 + " vs " + team2)
+                    pass
+                else:
+                    # print(str(screenshot_count) + " screenshots for " + "Stage: " + str(stage_number+1) + " Round: " + str(match['roundNumber']) + " " + team1 + " vs " + team2)
+                    pass
 
     def dl_team_logos(self):
         for team in self.tournament_data['teams']:
