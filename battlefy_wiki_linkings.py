@@ -79,6 +79,7 @@ class BattlefyWikiTeamLinkings(object):
         team_name_fixed = team_name_fixed.replace(' : ', ' ').replace(':', ' ')
         team_name_fixed = team_name_fixed.replace('[', '').replace(']', '')
         team_name_fixed = team_name_fixed.replace('  ', ' ')
+        team_name_fixed = '"' + team_name_fixed + '"'
 
         with open(self.battlefy_wiki_teams, 'a+', newline='\n', encoding='utf-8') as bwt:
             bwt.write(team_id + ',' + team_name_fixed + ',,' + team_name_fixed.lower() + '\n')
