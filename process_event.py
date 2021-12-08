@@ -47,6 +47,34 @@ def create_team_list(data):
     return teams_ordered
 
 
+def create_team_id_list(data):
+    teams_ordered = 'Team Name, Captain'
+    teams_ordered += ', Player-2, Player-3, Player-4, Player-5, Player-6, Player-7\n'
+    teams = list()
+    for team_id in data['teams']:
+        teams.append((team_id, data['teams'][team_id]['name']))
+    teams = sorted(teams, key=itemgetter(1))
+
+    for team in teams:
+        team_row = team[1]
+
+        players = ''
+        captain = ', '
+        captain_id = ''
+        if 'captain' in data['teams'][team[0]]:
+            captain = ', ' + data['teams'][team[0]]['captain']['userID'] + ' ' + data['teams'][team[0]]['captain']['inGameName']
+            captain_id = data['teams'][team[0]]['captain']['_id']
+
+        for player in data['teams'][team[0]]['players']:
+            if player['_id'] == captain_id:
+                continue
+            players += ', ' + player['userID'] + ' ' + player['inGameName']
+
+        team_row += captain + players + '\n'
+        teams_ordered += team_row
+
+    return teams_ordered
+
 def main():
 
     # Todo: main should take in arguments
@@ -66,22 +94,30 @@ def main():
     gsl_s1_id = '5ff4b388fd124e11b18e185d'
     ccs_summer_minor_id = '60b41961d35b1411a7b31d64'
     ccs_summer_major_id = '60dd319012cb9c33c2f63868'
-    ccs_fall_minor_id = ''
-    ccs_fall_major_id = ''
-    tournament_id = ccs_fall_minor_id
+    ccs_fall_minor_id = '60fa26043ba15d73719669bd'
+    ccs_fall_major_id = '61314505635fe17a14eafe03'
+    ccs_championship_id = '6150dd2b0dd060282bebb0eb'
+    world_cup_id = '611dac6ecb6f6260d5f30b6e'
+
+    tournament_id = world_cup_id
     event_data = battlefy_data. BattlefyData(tournament_id)
     event_data.load_tournament_data()
 
     # Pull a fresh set of data and don't reduce teams to just those in a non-existent standings list
-    event_data.dl_tournament_data(reduce_teams=False)
+    event_data.dl_tournament_data(reduce_teams=True)
 
     # Create Team/Player CSV
     event_path = event_data.get_tournament_data_path()
     event_path.mkdir(parents=True, exist_ok=True)
     filename = Path.joinpath(event_path, event_data.tournament_data['name'] + '_teams-players.csv')
+    filename2 = Path.joinpath(event_path, event_data.tournament_data['name'] + '_teams-players-ids.csv')
 
-    with open(filename, 'w+', newline='\n') as f:
+    with open(filename, 'w+', newline='\n', encoding='utf-8') as f:
         teams = create_team_list(event_data.tournament_data)
+        f.write(teams)
+
+    with open(filename2, 'w+', newline='\n', encoding='utf-8') as f:
+        teams = create_team_id_list(event_data.tournament_data)
         f.write(teams)
 
     event_data.dl_team_logos()
